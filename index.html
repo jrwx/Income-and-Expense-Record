@@ -650,6 +650,17 @@ showMsg(
 'กำลังบันทึก...'
 );
 
+// เก็บไฟล์ไว้ก่อน
+const slipFile=
+document.getElementById(
+'exp-slip'
+).files[0];
+
+const receiptFile=
+document.getElementById(
+'exp-receipt'
+).files[0];
+
 const id=
 Date.now();
 
@@ -677,10 +688,12 @@ receipt:null
 
 });
 
+// ขึ้นตารางทันที
 saveStorage();
 
 renderAll();
 
+// ล้างฟอร์มหลังขึ้นตาราง
 form.reset();
 
 setTodayDate();
@@ -691,18 +704,15 @@ showMsg(
 'บันทึกแล้ว ✅'
 );
 
+// อ่านรูปทีหลัง
 const slip=
 await processFile(
-document.getElementById(
-'exp-slip'
-).files[0]
+slipFile
 );
 
 const receipt=
 await processFile(
-document.getElementById(
-'exp-receipt'
-).files[0]
+receiptFile
 );
 
 const item=
