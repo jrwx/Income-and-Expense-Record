@@ -572,6 +572,7 @@
         renderAll(); showMsg('ลบแล้ว 🗑️');
     }
 
+    /* ⚙️ ฟังก์ชันกรองชื่อประวัติแบบรวมยอดเงิน (น้าก๊อปชุดนี้ไปทับได้เลยครับ) */
     function filterByPayer(payerName) {
         currentFilterPayer = payerName;
         renderTable();
@@ -585,7 +586,13 @@
             clearBtn.style.display = 'none';
             tableSec.classList.remove('highlight-filter');
         } else {
-            titleEl.textContent = `🔍 รายจ่ายของคุณ: ${payerName}`;
+            // 💰 ส่วนที่เพิ่มเข้ามา: คำนวณยอดรวมเฉพาะคนที่เราคลิกแว่นขยายดู
+            const filteredTotal = expenses
+                .filter(exp => exp.payer === payerName)
+                .reduce((sum, exp) => sum + exp.amount, 0);
+
+            // แสดงยอดเงินรวมต่อท้ายชื่อให้อย่างสวยงามครับน้า
+            titleEl.textContent = `🔍 รายจ่ายของคุณ: ${payerName} (รวมยอด: ${filteredTotal.toLocaleString('th-TH', {minimumFractionDigits:2})} บาท)`;
             clearBtn.style.display = 'inline-block';
             tableSec.classList.add('highlight-filter');
             tableSec.scrollIntoView({ behavior: 'smooth' });
