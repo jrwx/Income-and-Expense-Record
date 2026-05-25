@@ -25,178 +25,64 @@
             padding: 20px;
             line-height: 1.5;
         }
-        .container {
-            max-width: 1050px;
-            margin: 0 auto;
-        }
-        
-        /* Header & Control */
+        .container { max-width: 1050px; margin: 0 auto; }
         .web-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-bottom: 30px;
-            padding: 20px 30px;
-            background: linear-gradient(135deg, #fff0e6 0%, #ffe5d9 100%);
-            border-radius: 24px;
-            border: 2px dashed #ffb703;
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;
+            margin-bottom: 30px; padding: 20px 30px; background: linear-gradient(135deg, #fff0e6 0%, #ffe5d9 100%);
+            border-radius: 24px; border: 2px dashed #ffb703;
         }
         .web-header-text h1 { margin: 0; color: #d95d26; font-size: 2rem; }
         .web-header-text p { margin: 5px 0 0 0; color: var(--text-muted); font-size: 0.95rem; }
-
-        /* Toggle Edit Mode Button */
         .btn-toggle-edit {
-            background-color: #fff;
-            color: var(--primary);
-            border: 2px solid var(--primary);
-            padding: 10px 20px;
-            border-radius: 50px;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            background-color: #fff; color: var(--primary); border: 2px solid var(--primary);
+            padding: 10px 20px; border-radius: 50px; font-weight: bold; cursor: pointer;
+            display: flex; align-items: center; gap: 8px; transition: all 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
         .btn-toggle-edit:active { transform: scale(0.95); }
-        .btn-toggle-edit.active {
-            background-color: var(--primary);
-            color: white;
-            box-shadow: 0 4px 12px rgba(255, 122, 60, 0.3);
-        }
-
-        /* Dashboard Card */
-        .grid-summary {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
+        .btn-toggle-edit.active { background-color: var(--primary); color: white; box-shadow: 0 4px 12px rgba(255, 122, 60, 0.3); }
+        .grid-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px; }
         .card {
-            background: var(--card-bg);
-            padding: 22px;
-            border-radius: 20px;
-            box-shadow: 0 8px 16px -4px rgba(255, 122, 60, 0.08);
-            border: 2px solid var(--border-color);
-            position: relative;
-            overflow: hidden;
+            background: var(--card-bg); padding: 22px; border-radius: 20px; position: relative; overflow: hidden;
+            box-shadow: 0 8px 16px -4px rgba(255, 122, 60, 0.08); border: 2px solid var(--border-color);
         }
         .card::before { content: ''; position: absolute; top: 0; left: 0; width: 6px; height: 100%; }
         .card.total::before { background-color: var(--primary); }
         .card.shop::before { background-color: var(--shop-color); }
         .card.person::before { background-color: var(--success); }
-        
         .card h3 { font-size: 0.95rem; color: var(--text-muted); margin: 0 0 8px 0; display: flex; justify-content: space-between; align-items: center;}
         .card .amount { font-size: 1.9rem; font-weight: bold; color: #2b1e1d; }
         .card .currency { font-size: 1rem; font-weight: normal; color: var(--text-muted); margin-left: 4px; }
-
-        /* Delete Payer Button */
         .btn-del-payer {
-            background: #ff6b6b;
-            color: white;
-            border: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            font-size: 0.7rem;
-            cursor: pointer;
-            display: none;
-            align-items: center;
-            justify-content: center;
+            background: #ff6b6b; color: white; border: none; width: 20px; height: 20px;
+            border-radius: 50%; font-size: 0.7rem; cursor: pointer; display: none; align-items: center; justify-content: center;
         }
         .btn-del-payer:active { transform: scale(0.85); }
-
-        /* Layout Columns */
-        .main-layout {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-        
+        .main-layout { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; margin-bottom: 30px; }
         .edit-mode-section { display: none; }
-
-        .section {
-            background: var(--card-bg);
-            padding: 25px;
-            border-radius: 24px;
-            box-shadow: 0 8px 16px -4px rgba(255, 122, 60, 0.06);
-            border: 2px solid var(--border-color);
-            height: 100%;
-            box-sizing: border-box;
-        }
-        .section h2 { 
-            margin-top: 0; margin-bottom: 20px; color: #d95d26; font-size: 1.4rem;
-            border-bottom: 2px dashed var(--border-color); padding-bottom: 10px;
-        }
-        
+        .section { background: var(--card-bg); padding: 25px; border-radius: 24px; box-shadow: 0 8px 16px -4px rgba(255, 122, 60, 0.06); border: 2px solid var(--border-color); height: 100%; box-sizing: border-box; }
+        .section h2 { margin-top: 0; margin-bottom: 20px; color: #d95d26; font-size: 1.4rem; border-bottom: 2px dashed var(--border-color); padding-bottom: 10px; }
         .form-group { margin-bottom: 18px; }
         label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.95rem; color: #5c4d4c; }
-        input, select {
-            width: 100%; padding: 12px; border: 2px solid var(--border-color);
-            border-radius: 14px; box-sizing: border-box; font-size: 1rem;
-            color: var(--text-main); background-color: #fffdfb;
-        }
+        input, select { width: 100%; padding: 12px; border: 2px solid var(--border-color); border-radius: 14px; box-sizing: border-box; font-size: 1rem; color: var(--text-main); background-color: #fffdfb; }
         .flex-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        
-        /* Buttons */
-        .btn {
-            background: var(--primary); color: white; border: none; padding: 12px 22px;
-            border-radius: 14px; cursor: pointer; font-size: 1rem; font-weight: bold;
-            display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-            box-shadow: 0 4px 10px rgba(255, 122, 60, 0.2); width: 100%;
-            transition: background 0.2s, transform 0.1s;
-        }
+        .btn { background: var(--primary); color: white; border: none; padding: 12px 22px; border-radius: 14px; cursor: pointer; font-size: 1rem; font-weight: bold; display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 10px rgba(255, 122, 60, 0.2); width: 100%; transition: background 0.2s, transform 0.1s; }
         .btn:hover { background: var(--primary-hover); }
         .btn:active { transform: scale(0.96); box-shadow: 0 2px 5px rgba(255, 122, 60, 0.2); }
-        
         .btn-danger { background: #ff6b6b; box-shadow: 0 4px 10px rgba(255, 107, 107, 0.2); width: auto; display: none;}
         .btn-danger:hover { background: #fa5252; }
         .btn-danger:active { transform: scale(0.92); box-shadow: 0 2px 5px rgba(255, 107, 107, 0.2); }
-
         .name-manager { display: flex; gap: 10px; }
         .name-manager input { flex: 1; }
         .name-manager .btn { width: auto; white-space: nowrap; }
-
-        /* Table Section */
-        .table-section {
-            background: var(--card-bg); padding: 25px; border-radius: 24px;
-            box-shadow: 0 8px 16px -4px rgba(255, 122, 60, 0.06); border: 2px solid var(--border-color);
-        }
-        
-        .table-responsive { 
-            max-height: 330px; 
-            overflow-y: auto; 
-            overflow-x: auto; 
-            border-radius: 16px; 
-            border: 2px solid var(--border-color); 
-        }
-        
+        .table-section { background: var(--card-bg); padding: 25px; border-radius: 24px; box-shadow: 0 8px 16px -4px rgba(255, 122, 60, 0.06); border: 2px solid var(--border-color); }
+        .table-responsive { max-height: 330px; overflow-y: auto; overflow-x: auto; border-radius: 16px; border: 2px solid var(--border-color); }
         table { width: 100%; border-collapse: collapse; text-align: left; background: white; }
-        th { 
-            position: sticky;
-            top: 0;
-            background-color: #fff5f0; 
-            color: #d95d26; 
-            font-weight: bold; 
-            z-index: 10;
-            box-shadow: 0 1px 0 var(--border-color);
-        }
+        th { position: sticky; top: 0; background-color: #fff5f0; color: #d95d26; font-weight: bold; z-index: 10; box-shadow: 0 1px 0 var(--border-color); }
         th, td { padding: 14px 18px; border-bottom: 1px solid var(--border-color); }
-        
         .badge-payer { background: #ffe8cc; color: #d9480f; padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; }
         .badge-shop { background: #fff3bf; color: #f59e0b; }
-
         .img-preview { width: 45px; height: 45px; border-radius: 10px; cursor: pointer; object-fit: cover; border: 2px solid var(--border-color); }
-        .no-img { font-size: 0.85rem; color: var(--text-muted); font-style: italic; }
-
-        .modal {
-            display: none; position: fixed; z-index: 1000; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(43, 30, 29, 0.85); backdrop-filter: blur(5px); justify-content: center; align-items: center;
-        }
+        .modal { display: none; position: fixed; z-index: 1000; top: 0; left: 0; width: 100%; height: 100%; background: rgba(43, 30, 29, 0.85); backdrop-filter: blur(5px); justify-content: center; align-items: center; }
         .modal img { max-width: 85%; max-height: 85%; border-radius: 16px; border: 4px solid white; }
     </style>
 </head>
@@ -208,9 +94,7 @@
             <h1>บันทึกรายจ่าย</h1>
             <p>โหมดปกติไว้สำหรับดูยอดเงิน หากต้องการลงบันทึกหรือลบข้อมูล ให้เปิด "โหมดแก้ไข" น้า</p>
         </div>
-        <button id="edit-toggle-btn" class="btn-toggle-edit" onclick="toggleEditMode()">
-            ⚙️ เปิดโหมดแก้ไข
-        </button>
+        <button id="edit-toggle-btn" class="btn-toggle-edit" onclick="toggleEditMode()">⚙️ เปิดโหมดแก้ไข</button>
     </div>
 
     <div class="grid-summary" id="summary-boxes">
@@ -248,21 +132,18 @@
                     <div class="form-group">
                         <label>🙋 ใครเป็นคนจ่าย?</label>
                         <select id="exp-payer" required>
-                            <option value="ร้าน">ร้านจ่าย</option>
+                            <option value="default">โหลดข้อมูลรายชื่อ...</option>
                         </select>
                     </div>
                 </div>
-
                 <div class="form-group">
                     <label>✏️ รายการ / ค่าใช้จ่ายอะไร</label>
                     <input type="text" id="exp-title" placeholder="เช่น ค่าของเข้าร้าน" required>
                 </div>
-
                 <div class="form-group">
                     <label>💵 จำนวนเงิน (บาท)</label>
                     <input type="number" id="exp-amount" step="0.01" placeholder="0.00" required>
                 </div>
-
                 <div class="flex-inputs">
                     <div class="form-group">
                         <label>📸 แนบสลิป</label>
@@ -273,7 +154,6 @@
                         <input type="file" id="exp-receipt" accept="image/*">
                     </div>
                 </div>
-
                 <button type="submit" class="btn" id="btn-submit-expense">🎈 บันทึกรายการ</button>
             </form>
         </div>
@@ -305,131 +185,112 @@
 </div>
 
 <script>
+    let db;
     let payers = JSON.parse(localStorage.getItem('payers_cute')) || [];
-    let expenses = JSON.parse(localStorage.getItem('expenses_cute')) || [];
+    let expenses = [];
     let isEditMode = false;
 
-    function setTodayDate() {
-        document.getElementById('exp-date').valueAsDate = new Date();
-    }
-    setTodayDate();
+    // เปิดระบบคลังเก็บรูปขนาดใหญ่ IndexedDB
+    const request = indexedDB.open("CuteExpenseUltimateDB", 1);
+    request.onupgradeneeded = function(e) {
+        db = e.target.result;
+        if (!db.objectStoreNames.contains("expenses")) {
+            db.createObjectStore("expenses", { keyPath: "id" });
+        }
+    };
+    request.onsuccess = function(e) {
+        db = e.target.result;
+        loadExpensesFromDB();
+    };
+    request.onerror = function() { alert("เปิดฐานข้อมูลล้มเหลว"); };
 
-    function saveStorage() {
-        localStorage.setItem('payers_cute', JSON.stringify(payers));
-        localStorage.setItem('expenses_cute', JSON.stringify(expenses));
+    function loadExpensesFromDB() {
+        const transaction = db.transaction(["expenses"], "readonly");
+        const store = transaction.objectStore("expenses");
+        const getAll = store.getAll();
+        getAll.onsuccess = function() {
+            expenses = getAll.result || [];
+            expenses.sort((a, b) => b.id - a.id);
+            renderAll();
+            updatePayerDropdown();
+        };
     }
+
+    function setTodayDate() { document.getElementById('exp-date').valueAsDate = new Date(); }
+    setTodayDate();
 
     function showMsg(text) {
         let box = document.getElementById('toast-msg');
         if (!box) {
-            box = document.createElement('div');
-            box.id = 'toast-msg';
-            box.style.cssText = `
-                position: fixed;
-                bottom: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                background: #2ec4b6;
-                color: white;
-                padding: 12px 18px;
-                border-radius: 14px;
-                font-weight: bold;
-                z-index: 99999;
-                box-shadow: 0 5px 16px rgba(0,0,0,.15);
-                transition: opacity 0.3s ease; /* แก้ไขจุดนี้: ใส่เพื่อให้กล่องค่อยๆ จางหายไป ไม่บล็อกหน้าจอ */
-                pointer-events: none; /* ป้องกันไม่ให้ตัวกล่องแจ้งเตือนไปบังการจิ้มนิ้วของน้า */
-            `;
+            box = document.createElement('div'); box.id = 'toast-msg';
+            box.style.cssText = `position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#2ec4b6; color:white; padding:12px 18px; border-radius:14px; font-weight:bold; z-index:99999; box-shadow:0 5px 16px rgba(0,0,0,.15); transition:opacity 0.3s ease; pointer-events:none;`;
             document.body.appendChild(box);
         }
-        box.innerHTML = text;
-        box.style.opacity = '1';
-        clearTimeout(box.timer);
-        box.timer = setTimeout(() => {
-            box.style.opacity = '0';
-        }, 1700);
+        box.innerHTML = text; box.style.opacity = '1';
+        clearTimeout(box.timer); box.timer = setTimeout(() => box.style.opacity = '0', 1700);
     }
 
     function toggleEditMode() {
         isEditMode = !isEditMode;
         const btn = document.getElementById('edit-toggle-btn');
         const edit = document.getElementById('edit-widgets');
-
         if (isEditMode) {
-            btn.textContent = '🔒 ปิดโหมดแก้ไข';
-            btn.classList.add('active');
-            edit.style.display = 'grid';
+            btn.textContent = '🔒 ปิดโหมดแก้ไข'; btn.classList.add('active'); edit.style.display = 'grid';
         } else {
-            btn.textContent = '⚙️ เปิดโหมดแก้ไข';
-            btn.classList.remove('active');
-            edit.style.display = 'none';
+            btn.textContent = '⚙️ เปิดโหมดแก้ไข'; btn.classList.remove('active'); edit.style.display = 'none';
         }
         renderAll();
     }
 
     function addPayerName() {
-        const input = document.getElementById('new-name');
-        const name = input.value.trim();
-
-        if (!name) {
-            alert('กรอกชื่อก่อนน้า 🍊');
-            return;
-        }
-
-        // เพิ่มการตรวจสอบเงื่อนไข: ห้ามเกิน 20 คน
-        if (payers.length >= 20) {
-            alert('รายชื่อสมาชิกเต็มแล้วค่ะน้า! (สูงสุด 20 คน) หากต้องการเพิ่มคนใหม่ ต้องลบชื่อคนเก่าออกก่อนน้า');
-            return;
-        }
-
-        if (name === 'ร้าน' || payers.includes(name)) {
-            alert('ชื่อนี้มีอยู่ในระบบแล้วค่ะ');
-            return;
-        }
-
+        const input = document.getElementById('new-name'); const name = input.value.trim();
+        if (!name) { alert('กรอกชื่อก่อนน้า 🍊'); return; }
+        if (payers.length >= 20) { alert('รายชื่อสมาชิกเต็มแล้วค่ะน้า! (สูงสุด 20 คน)'); return; }
+        if (name === 'ร้าน' || payers.includes(name)) { alert('ชื่อนี้มีอยู่ในระบบแล้วค่ะ'); return; }
         payers.push(name);
-        saveStorage();
-        input.value = '';
-        
-        updatePayerDropdown();
-        renderAll();
-        showMsg('เพิ่มรายชื่อสำเร็จ ✨');
+        localStorage.setItem('payers_cute', JSON.stringify(payers));
+        input.value = ''; updatePayerDropdown(); renderAll(); showMsg('เพิ่มรายชื่อสำเร็จ ✨');
     }
 
     function deletePayer(name) {
         if (!confirm(`คุณแน่ใจใช่ไหมว่าจะลบชื่อ "${name}" ออกจากระบบ?`)) return;
-
         payers = payers.filter(p => p !== name);
-        saveStorage();
-        
-        updatePayerDropdown();
-        renderAll();
-        showMsg('ลบแล้ว 🗑️');
+        localStorage.setItem('payers_cute', JSON.stringify(payers));
+        updatePayerDropdown(); renderAll(); showMsg('ลบแล้ว 🗑️');
     }
 
     function updatePayerDropdown() {
         const select = document.getElementById('exp-payer');
-        const current = select.value || 'ร้าน';
-
+        if(!select) return;
+        const current = select.value && select.value !== 'default' ? select.value : 'ร้าน';
         select.innerHTML = `<option value="ร้าน">ร้านจ่าย</option>`;
         payers.forEach(name => {
-            const op = document.createElement('option');
-            op.value = name;
-            op.textContent = name;
-            select.appendChild(op);
+            const op = document.createElement('option'); op.value = name; op.textContent = name; select.appendChild(op);
         });
         select.value = current;
-        
-        // อัปเดตตัวเลขจำนวนคนจ่ายปัจจุบันที่หน้าหัวข้อด้วย
         const countSpan = document.getElementById('payer-count');
         if (countSpan) countSpan.textContent = payers.length;
     }
 
-    function processFile(file) {
+    // 🛠️ ตัวย่อขนาดและลดคุณภาพรูปภาพให้เหลือ 70% ก่อนเซฟลงฐานข้อมูลใหญ่
+    function compressImageFile(file) {
         return new Promise(resolve => {
             if (!file) { resolve(null); return; }
             const reader = new FileReader();
-            reader.onload = () => resolve(reader.result);
             reader.readAsDataURL(file);
+            reader.onload = function(event) {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width; let height = img.height;
+                    if (width > 800) { height *= 800 / width; width = 800; } // ย่อรูปกว้างไม่เกิน 800px
+                    canvas.width = width; canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    resolve(canvas.toDataURL('image/jpeg', 0.7)); // บีบอัดคุณภาพรูปเหลือ 70%
+                };
+            };
         });
     }
 
@@ -438,146 +299,79 @@
         const form = document.getElementById('expense-form');
         const title = document.getElementById('exp-title').value.trim();
         const amount = parseFloat(document.getElementById('exp-amount').value);
+        if (!title || isNaN(amount) || amount <= 0) { alert('กรอกข้อมูลให้ครบและถูกต้องน้า'); return; }
 
-        if (!title || isNaN(amount) || amount <= 0) {
-            alert('กรอกข้อมูลให้ครบและถูกต้องน้า');
-            return;
-        }
-
-        showMsg('กำลังบันทึก...');
-
+        showMsg('กำลังย่อรูปและเซฟข้อมูล...');
         const slipFile = document.getElementById('exp-slip').files[0];
         const receiptFile = document.getElementById('exp-receipt').files[0];
         const id = Date.now();
 
-        expenses.unshift({
-            id,
-            date: document.getElementById('exp-date').value,
+        const slip = await compressImageFile(slipFile);
+        const receipt = await compressImageFile(receiptFile);
+
+        const newExpense = {
+            id, date: document.getElementById('exp-date').value,
             payer: document.getElementById('exp-payer').value,
-            title,
-            amount,
-            slip: null,
-            receipt: null
-        });
+            title, amount, slip: slip, receipt: receipt
+        };
 
-        saveStorage();
-        renderAll();
+        expenses.unshift(newExpense);
         
-        form.reset();
-        setTodayDate();
-        updatePayerDropdown();
-        showMsg('บันทึกแล้ว ✅');
+        // บันทึกเข้าคลังใหญ่ IndexedDB ปลอดภัย รูปไม่หายแน่นอน
+        const transaction = db.transaction(["expenses"], "readwrite");
+        transaction.objectStore("expenses").put(newExpense);
 
-        // จัดการเรื่องรูปภาพแบบเบื้องหลังเพื่อความเร็ว
-        const slip = await processFile(slipFile);
-        const receipt = await processFile(receiptFile);
-        const item = expenses.find(x => x.id === id);
-
-        if (item) {
-            item.slip = slip;
-            item.receipt = receipt;
-            saveStorage();
-            renderAll();
-        }
+        renderAll(); form.reset(); setTodayDate(); updatePayerDropdown();
+        showMsg('บันทึกเรียบร้อยแล้ว ✅');
     }
 
     function deleteExpense(id) {
         if (!confirm('คุณแน่ใจน้าว่าจะลบรายการนี้?')) return;
-
         expenses = expenses.filter(item => item.id !== id);
-        saveStorage();
-        renderAll();
-        showMsg('ลบแล้ว 🗑️');
+        const transaction = db.transaction(["expenses"], "readwrite");
+        transaction.objectStore("expenses").delete(id);
+        renderAll(); showMsg('ลบแล้ว 🗑️');
     }
 
     function renderSummary() {
-        let grand = 0;
-        let shop = 0;
-        const person = {};
-
+        let grand = 0; let shop = 0; const person = {};
         payers.forEach(p => person[p] = 0);
-
         expenses.forEach(exp => {
             grand += exp.amount;
-            if (exp.payer === 'ร้าน') {
-                shop += exp.amount;
-            } else {
-                if (person[exp.payer] === undefined) { person[exp.payer] = 0; }
-                person[exp.payer] += exp.amount;
-            }
+            if (exp.payer === 'ร้าน') { shop += exp.amount; } 
+            else { if (person[exp.payer] === undefined) { person[exp.payer] = 0; } person[exp.payer] += exp.amount; }
         });
-
         document.getElementById('grand-total').innerHTML = `${grand.toLocaleString('th-TH', {minimumFractionDigits:2})} <span class="currency">บาท</span>`;
         document.getElementById('shop-total').innerHTML = `${shop.toLocaleString('th-TH', {minimumFractionDigits:2})} <span class="currency">บาท</span>`;
-
-        const box = document.getElementById('dynamic-person-boxes');
-        box.innerHTML = '';
-
+        const box = document.getElementById('dynamic-person-boxes'); box.innerHTML = '';
         Object.keys(person).forEach(name => {
-            const card = document.createElement('div');
-            card.className = 'card person';
-            card.innerHTML = `
-                <h3>
-                    <span>👤 ${name}</span>
-                    ${isEditMode ? `<button class="btn-del-payer" style="display:flex" onclick="deletePayer('${name}')">✕</button>` : ''}
-                </h3>
-                <div class="amount">${person[name].toLocaleString('th-TH', {minimumFractionDigits:2})} <span class="currency">บาท</span></div>
-            `;
+            const card = document.createElement('div'); card.className = 'card person';
+            card.innerHTML = `<h3><span>👤 ${name}</span>${isEditMode ? `<button class="btn-del-payer" style="display:flex" onclick="deletePayer('${name}')">✕</button>` : ''}</h3><div class="amount">${person[name].toLocaleString('th-TH', {minimumFractionDigits:2})} <span class="currency">บาท</span></div>`;
             box.appendChild(card);
         });
     }
 
-    function viewImage(img) {
-        if (!img) return;
-        document.getElementById('modal-img').src = img;
-        document.getElementById('image-modal').style.display = 'flex';
-    }
+    function viewImage(img) { if (!img) return; document.getElementById('modal-img').src = img; document.getElementById('image-modal').style.display = 'flex'; }
 
     function renderTable() {
-        const tbody = document.getElementById('expense-table-body');
-        const th = document.getElementById('th-manage');
-        tbody.innerHTML = '';
-
-        th.style.display = isEditMode ? 'table-cell' : 'none';
-
+        const tbody = document.getElementById('expense-table-body'); const th = document.getElementById('th-manage');
+        if(!tbody || !th) return; tbody.innerHTML = ''; th.style.display = isEditMode ? 'table-cell' : 'none';
         expenses.forEach(exp => {
-            const tr = document.createElement('tr');
-            const payerClass = exp.payer === 'ร้าน' ? 'badge-payer badge-shop' : 'badge-payer';
-
-            // แปลงรูปแบบวันที่แสดงผลให้ดูง่ายขึ้น
-            let formattedDate = '-';
-            if (exp.date) {
-                const d = new Date(exp.date);
-                formattedDate = d.toLocaleDateString('th-TH', {day: '2-digit', month: 'short', year: 'numeric'});
-            }
-
+            const tr = document.createElement('tr'); const payerClass = exp.payer === 'ร้าน' ? 'badge-payer badge-shop' : 'badge-payer';
+            let formattedDate = '-'; if (exp.date) { const d = new Date(exp.date); formattedDate = d.toLocaleDateString('th-TH', {day: '2-digit', month: 'short', year: 'numeric'}); }
             tr.innerHTML = `
-                <td>${formattedDate}</td>
-                <td><strong>${exp.title}</strong></td>
-                <td><span class="${payerClass}">${exp.payer}</span></td>
+                <td>${formattedDate}</td><td><strong>${exp.title}</strong></td><td><span class="${payerClass}">${exp.payer}</span></td>
                 <td style="font-weight: bold; color: #d95d26;">${exp.amount.toLocaleString('th-TH', {minimumFractionDigits:2})}</td>
                 <td>${exp.slip ? `<img src="${exp.slip}" class="img-preview" onclick="viewImage('${exp.slip}')">` : '-'}</td>
                 <td>${exp.receipt ? `<img src="${exp.receipt}" class="img-preview" onclick="viewImage('${exp.receipt}')">` : '-'}</td>
-                <td style="display: ${isEditMode ? 'table-cell' : 'none'};">
-                    <button class="btn btn-danger" style="display:inline-block; padding: 5px 12px; font-size: 0.85rem; border-radius: 10px;" onclick="deleteExpense(${exp.id})">ลบ</button>
-                </td>
+                <td style="display: ${isEditMode ? 'table-cell' : 'none'};"><button class="btn btn-danger" style="display:inline-block; padding: 5px 12px; font-size: 0.85rem; border-radius: 10px;" onclick="deleteExpense(${exp.id})">ลบ</button></td>
             `;
             tbody.appendChild(tr);
         });
-
-        if (expenses.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:30px; color: var(--text-muted);">ยังไม่มีข้อมูลบันทึกรายจ่ายเลยน้า มาร่วมเริ่มบันทึกกันเลย! 🍊</td></tr>`;
-        }
+        if (expenses.length === 0) { tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:30px; color: var(--text-muted);">ยังไม่มีข้อมูลบันทึกรายจ่ายเลยน้า มาร่วมเริ่มบันทึกกันเลย! 🍊</td></tr>`; }
     }
 
-    function renderAll() {
-        renderSummary();
-        renderTable();
-    }
-
-    // เริ่มทำงานครั้งแรก
-    updatePayerDropdown();
-    renderAll();
+    function renderAll() { renderSummary(); renderTable(); }
 </script>
 
 </body>
