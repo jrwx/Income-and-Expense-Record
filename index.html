@@ -43,11 +43,7 @@
             border-radius: 24px;
             border: 2px dashed #ffb703;
         }
-        .web-header-text h1 {
-            margin: 0;
-            color: #d95d26;
-            font-size: 2rem;
-        }
+        .web-header-text h1 { margin: 0; color: #d95d26; font-size: 2rem; }
         .web-header-text p { margin: 5px 0 0 0; color: var(--text-muted); font-size: 0.95rem; }
 
         /* Toggle Edit Mode Button */
@@ -65,9 +61,7 @@
             transition: all 0.2s;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
-        .btn-toggle-edit:active {
-            transform: scale(0.95);
-        }
+        .btn-toggle-edit:active { transform: scale(0.95); }
         .btn-toggle-edit.active {
             background-color: var(--primary);
             color: white;
@@ -90,11 +84,7 @@
             position: relative;
             overflow: hidden;
         }
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 6px; height: 100%;
-        }
+        .card::before { content: ''; position: absolute; top: 0; left: 0; width: 6px; height: 100%; }
         .card.total::before { background-color: var(--primary); }
         .card.shop::before { background-color: var(--shop-color); }
         .card.person::before { background-color: var(--success); }
@@ -117,9 +107,7 @@
             align-items: center;
             justify-content: center;
         }
-        .btn-del-payer:active {
-            transform: scale(0.85);
-        }
+        .btn-del-payer:active { transform: scale(0.85); }
 
         /* Layout Columns */
         .main-layout {
@@ -129,10 +117,7 @@
             margin-bottom: 30px;
         }
         
-        /* Edit Section Container */
-        .edit-mode-section {
-            display: none;
-        }
+        .edit-mode-section { display: none; }
 
         .section {
             background: var(--card-bg);
@@ -166,17 +151,11 @@
             transition: background 0.2s, transform 0.1s;
         }
         .btn:hover { background: var(--primary-hover); }
-        .btn:active {
-            transform: scale(0.96); 
-            box-shadow: 0 2px 5px rgba(255, 122, 60, 0.2);
-        }
+        .btn:active { transform: scale(0.96); box-shadow: 0 2px 5px rgba(255, 122, 60, 0.2); }
         
         .btn-danger { background: #ff6b6b; box-shadow: 0 4px 10px rgba(255, 107, 107, 0.2); width: auto; display: none;}
         .btn-danger:hover { background: #fa5252; }
-        .btn-danger:active {
-            transform: scale(0.92);
-            box-shadow: 0 2px 5px rgba(255, 107, 107, 0.2);
-        }
+        .btn-danger:active { transform: scale(0.92); box-shadow: 0 2px 5px rgba(255, 107, 107, 0.2); }
 
         .name-manager { display: flex; gap: 10px; }
         .name-manager input { flex: 1; }
@@ -188,7 +167,6 @@
             box-shadow: 0 8px 16px -4px rgba(255, 122, 60, 0.06); border: 2px solid var(--border-color);
         }
         
-        /* ล็อกตารางให้สูงประมาณ 5 แถว เลื่อนถูดูได้เลย */
         .table-responsive { 
             max-height: 330px; 
             overflow-y: auto; 
@@ -249,9 +227,9 @@
 
     <div class="main-layout edit-mode-section" id="edit-widgets">
         <div class="section">
-            <h2>👤 จัดการรายชื่อคนจ่าย</h2>
+            <h2>👤 จัดการรายชื่อคนจ่าย (<span id="payer-count">0</span>/20)</h2>
             <div class="form-group">
-                <label>เพิ่มสมาชิกใหม่</label>
+                <label>เพิ่มสมาชิกใหม่ (สูงสุด 20 คน)</label>
                 <div class="name-manager">
                     <input type="text" id="new-name" placeholder="ใส่ชื่อ เช่น คนสวย">
                     <button class="btn" onclick="addPayerName()">✨ เพิ่มชื่อ</button>
@@ -307,13 +285,13 @@
             <table>
                 <thead>
                     <tr>
-                        <th style="width: 15%;">วันที่</th>
-                        <th style="width: 25%;">รายการ</th>
-                        <th style="width: 15%;">คนจ่าย</th>
-                        <th style="width: 15%;">ยอดเงิน</th>
-                        <th style="width: 10%;">สลิป</th>
-                        <th style="width: 10%;">ใบเสร็จ</th>
-                        <th id="th-manage" style="width: 10%;">จัดการ</th>
+                        <th style="width: 15%;">📅 วันที่</th>
+                        <th style="width: 25%;">✏️ รายการ</th>
+                        <th style="width: 15%;">🙋 คนจ่าย</th>
+                        <th style="width: 15%;">💵 ยอดเงิน</th>
+                        <th style="width: 10%;">📸 สลิป</th>
+                        <th style="width: 10%;">🧾 ใบเสร็จ</th>
+                        <th id="th-manage" style="width: 10%;">⚙️ จัดการ</th>
                     </tr>
                 </thead>
                 <tbody id="expense-table-body"></tbody>
@@ -327,818 +305,279 @@
 </div>
 
 <script>
-
-let payers =
-JSON.parse(
-localStorage.getItem(
-'payers_cute'
-)
-)||[];
-
-let expenses =
-JSON.parse(
-localStorage.getItem(
-'expenses_cute'
-)
-)||[];
-
-let isEditMode=false;
-
-function setTodayDate(){
-
-document.getElementById(
-'exp-date'
-).valueAsDate=
-new Date();
-
-}
-
-setTodayDate();
-
-function saveStorage(){
-
-localStorage.setItem(
-'payers_cute',
-JSON.stringify(
-payers
-)
-);
-
-localStorage.setItem(
-'expenses_cute',
-JSON.stringify(
-expenses
-)
-);
-
-}
-
-function showMsg(text){
-
-let box=
-document.getElementById(
-'toast-msg'
-);
-
-if(!box){
-
-box=
-document.createElement(
-'div'
-);
-
-box.id=
-'toast-msg';
-
-box.style.cssText=
-`
-position:fixed;
-bottom:20px;
-left:50%;
-transform:translateX(-50%);
-background:#2ec4b6;
-color:white;
-padding:12px 18px;
-border-radius:14px;
-font-weight:bold;
-z-index:99999;
-box-shadow:0 5px 16px rgba(0,0,0,.15);
-`;
-
-document.body.appendChild(
-box
-);
-
-}
-
-box.innerHTML=text;
-
-box.style.opacity='1';
-
-clearTimeout(
-box.timer
-);
-
-box.timer=
-setTimeout(()=>{
-
-box.style.opacity='0';
-
-},1700);
-
-}
-
-function toggleEditMode(){
-
-isEditMode=
-!isEditMode;
-
-const btn=
-document.getElementById(
-'edit-toggle-btn'
-);
-
-const edit=
-document.getElementById(
-'edit-widgets'
-);
-
-if(isEditMode){
-
-btn.textContent=
-'🔒 ปิดโหมดแก้ไข';
-
-btn.classList.add(
-'active'
-);
-
-edit.style.display=
-'grid';
-
-}else{
-
-btn.textContent=
-'⚙️ เปิดโหมดแก้ไข';
-
-btn.classList.remove(
-'active'
-);
-
-edit.style.display=
-'none';
-
-}
-
-renderAll();
-
-}
-
-function addPayerName(){
-
-const input=
-document.getElementById(
-'new-name'
-);
-
-const name=
-input.value.trim();
-
-if(!name){
-
-alert(
-'กรอกชื่อก่อน'
-);
-
-return;
-
-}
-
-if(
-name==='ร้าน'||
-payers.includes(name)
-){
-
-alert(
-'ชื่อนี้มีแล้ว'
-);
-
-return;
-
-}
-
-payers.push(name);
-
-saveStorage();
-
-input.value='';
-
-updatePayerDropdown();
-
-renderAll();
-
-}
-
-function deletePayer(name){
-
-if(
-!confirm(
-`ลบ ${name} ?`
-)
-)return;
-
-payers=
-payers.filter(
-p=>p!==name
-);
-
-saveStorage();
-
-updatePayerDropdown();
-
-renderAll();
-
-showMsg(
-'ลบแล้ว 🗑️'
-);
-
-}
-
-function updatePayerDropdown(){
-
-const select=
-document.getElementById(
-'exp-payer'
-);
-
-const current=
-select.value||
-'ร้าน';
-
-select.innerHTML=
-`
-<option value="ร้าน">
-ร้านจ่าย
-</option>
-`;
-
-payers.forEach(name=>{
-
-const op=
-document.createElement(
-'option'
-);
-
-op.value=name;
-
-op.textContent=name;
-
-select.appendChild(op);
-
-});
-
-select.value=
-current;
-
-}
-
-function processFile(file){
-
-return new Promise(resolve=>{
-
-if(!file){
-
-resolve(null);
-
-return;
-
-}
-
-const reader=
-new FileReader();
-
-reader.onload=
-()=>resolve(
-reader.result
-);
-
-reader.readAsDataURL(
-file
-);
-
-});
-
-}
-
-async function saveExpense(e){
-
-e.preventDefault();
-
-const form=
-document.getElementById(
-'expense-form'
-);
-
-const title=
-document.getElementById(
-'exp-title'
-)
-.value
-.trim();
-
-const amount=
-parseFloat(
-document.getElementById(
-'exp-amount'
-).value
-);
-
-if(
-!title||
-isNaN(amount)||
-amount<=0
-){
-
-alert(
-'กรอกข้อมูลให้ครบ'
-);
-
-return;
-
-}
-
-showMsg(
-'กำลังบันทึก...'
-);
-
-// เก็บไฟล์ไว้ก่อน
-const slipFile=
-document.getElementById(
-'exp-slip'
-).files[0];
-
-const receiptFile=
-document.getElementById(
-'exp-receipt'
-).files[0];
-
-const id=
-Date.now();
-
-expenses.unshift({
-
-id,
-
-date:
-document.getElementById(
-'exp-date'
-).value,
-
-payer:
-document.getElementById(
-'exp-payer'
-).value,
-
-title,
-
-amount,
-
-slip:null,
-
-receipt:null
-
-});
-
-// ขึ้นตารางทันที
-saveStorage();
-
-renderAll();
-
-// ล้างฟอร์มหลังขึ้นตาราง
-form.reset();
-
-setTodayDate();
-
-updatePayerDropdown();
-
-showMsg(
-'บันทึกแล้ว ✅'
-);
-
-// อ่านรูปทีหลัง
-const slip=
-await processFile(
-slipFile
-);
-
-const receipt=
-await processFile(
-receiptFile
-);
-
-const item=
-expenses.find(
-x=>x.id===id
-);
-
-if(item){
-
-item.slip=
-slip;
-
-item.receipt=
-receipt;
-
-saveStorage();
-
-renderAll();
-
-}
-
-}
-
-function deleteExpense(id){
-
-if(
-!confirm(
-'ลบรายการนี้ ?'
-)
-)return;
-
-expenses=
-expenses.filter(
-item=>
-item.id!==id
-);
-
-saveStorage();
-
-renderAll();
-
-showMsg(
-'ลบแล้ว 🗑️'
-);
-
-}
-
-function renderSummary(){
-
-let grand=0;
-let shop=0;
-
-const person={};
-
-payers.forEach(
-p=>
-person[p]=0
-);
-
-expenses.forEach(exp=>{
-
-grand+=exp.amount;
-
-if(
-exp.payer==='ร้าน'
-){
-
-shop+=
-exp.amount;
-
-}else{
-
-if(
-person[
-exp.payer
-]
-===undefined
-){
-
-person[
-exp.payer
-]=0;
-
-}
-
-person[
-exp.payer
-]+=exp.amount;
-
-}
-
-});
-
-document.getElementById(
-'grand-total'
-).innerHTML=
-
-`${grand.toLocaleString(
-'th-TH',
-{
-minimumFractionDigits:2
-}
-)}
-
-<span class="currency">
-บาท
-</span>`;
-
-document.getElementById(
-'shop-total'
-).innerHTML=
-
-`${shop.toLocaleString(
-'th-TH',
-{
-minimumFractionDigits:2
-}
-)}
-
-<span class="currency">
-บาท
-</span>`;
-
-const box=
-document.getElementById(
-'dynamic-person-boxes'
-);
-
-box.innerHTML='';
-
-Object.keys(
-person
-).forEach(name=>{
-
-const card=
-document.createElement(
-'div'
-);
-
-card.className=
-'card person';
-
-card.innerHTML=
-`
-<h3>
-
-<span>
-
-👤 ${name}
-
-</span>
-
-${
-isEditMode
-?
-
-`<button
-class=
-"btn-del-payer"
-style=
-"display:flex"
-onclick=
-"deletePayer(
-'${name}'
-)">
-✕
-</button>`
-
-:''
-
-}
-
-</h3>
-
-<div class=
-"amount">
-
-${person[name]
-.toLocaleString(
-'th-TH',
-{
-minimumFractionDigits:2
-}
-)}
-
-<span class=
-"currency">
-
-บาท
-
-</span>
-
-</div>
-`;
-
-box.appendChild(
-card
-);
-
-});
-
-}
-
-function viewImage(img){
-
-if(!img)return;
-
-document.getElementById(
-'modal-img'
-).src=img;
-
-document.getElementById(
-'image-modal'
-).style.display=
-'flex';
-
-}
-
-function renderTable(){
-
-const tbody=
-document.getElementById(
-'expense-table-body'
-);
-
-const th=
-document.getElementById(
-'th-manage'
-);
-
-tbody.innerHTML='';
-
-th.style.display=
-
-isEditMode
-
-?
-
-'table-cell'
-
-:
-
-'none';
-
-expenses.forEach(exp=>{
-
-const tr=
-document.createElement(
-'tr'
-);
-
-const payerClass=
-
-exp.payer==='ร้าน'
-
-?
-
-'badge-payer badge-shop'
-
-:
-
-'badge-payer';
-
-tr.innerHTML=
-`
-<td>
-
-${new Date(
-exp.date
-).toLocaleDateString(
-'th-TH'
-)}
-
-</td>
-
-<td>
-
-${exp.title}
-
-</td>
-
-<td>
-
-<span
-class=
-"${payerClass}"
->
-
-${exp.payer}
-
-</span>
-
-</td>
-
-<td>
-
-${exp.amount
-.toLocaleString(
-'th-TH',
-{
-minimumFractionDigits:2
-}
-)}
-
-</td>
-
-<td>
-
-${exp.slip
-
-?
-
-`<img
-src=
-"${exp.slip}"
-class=
-"img-preview"
-onclick=
-"viewImage(
-'${exp.slip}'
-)">`
-
-:'-'
-
-}
-
-</td>
-
-<td>
-
-${exp.receipt
-
-?
-
-`<img
-src=
-"${exp.receipt}"
-class=
-"img-preview"
-onclick=
-"viewImage(
-'${exp.receipt}'
-)">`
-
-:'-'
-
-}
-
-</td>
-
-<td
-style=
-"display:
-${isEditMode
-?
-'table-cell'
-:
-'none'
-};
-">
-
-<button
-
-class=
-"btn btn-danger"
-
-style=
-"display:inline-block"
-
-onclick=
-"deleteExpense(
-${exp.id}
-)"
-
->
-
-ลบ
-
-</button>
-
-</td>
-`;
-
-tbody.appendChild(
-tr
-);
-
-});
-
-if(
-expenses.length===0
-){
-
-tbody.innerHTML=
-`
-<tr>
-
-<td
-colspan="7"
-style=
-"text-align:center;
-padding:30px;">
-
-ยังไม่มีรายการ
-
-</td>
-
-</tr>
-`;
-
-}
-
-}
-
-function renderAll(){
-
-renderSummary();
-
-renderTable();
-
-}
-
-updatePayerDropdown();
-
-renderAll();
-
+    let payers = JSON.parse(localStorage.getItem('payers_cute')) || [];
+    let expenses = JSON.parse(localStorage.getItem('expenses_cute')) || [];
+    let isEditMode = false;
+
+    function setTodayDate() {
+        document.getElementById('exp-date').valueAsDate = new Date();
+    }
+    setTodayDate();
+
+    function saveStorage() {
+        localStorage.setItem('payers_cute', JSON.stringify(payers));
+        localStorage.setItem('expenses_cute', JSON.stringify(expenses));
+    }
+
+    function showMsg(text) {
+        let box = document.getElementById('toast-msg');
+        if (!box) {
+            box = document.createElement('div');
+            box.id = 'toast-msg';
+            box.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #2ec4b6;
+                color: white;
+                padding: 12px 18px;
+                border-radius: 14px;
+                font-weight: bold;
+                z-index: 99999;
+                box-shadow: 0 5px 16px rgba(0,0,0,.15);
+                transition: opacity 0.3s ease; /* แก้ไขจุดนี้: ใส่เพื่อให้กล่องค่อยๆ จางหายไป ไม่บล็อกหน้าจอ */
+                pointer-events: none; /* ป้องกันไม่ให้ตัวกล่องแจ้งเตือนไปบังการจิ้มนิ้วของน้า */
+            `;
+            document.body.appendChild(box);
+        }
+        box.innerHTML = text;
+        box.style.opacity = '1';
+        clearTimeout(box.timer);
+        box.timer = setTimeout(() => {
+            box.style.opacity = '0';
+        }, 1700);
+    }
+
+    function toggleEditMode() {
+        isEditMode = !isEditMode;
+        const btn = document.getElementById('edit-toggle-btn');
+        const edit = document.getElementById('edit-widgets');
+
+        if (isEditMode) {
+            btn.textContent = '🔒 ปิดโหมดแก้ไข';
+            btn.classList.add('active');
+            edit.style.display = 'grid';
+        } else {
+            btn.textContent = '⚙️ เปิดโหมดแก้ไข';
+            btn.classList.remove('active');
+            edit.style.display = 'none';
+        }
+        renderAll();
+    }
+
+    function addPayerName() {
+        const input = document.getElementById('new-name');
+        const name = input.value.trim();
+
+        if (!name) {
+            alert('กรอกชื่อก่อนน้า 🍊');
+            return;
+        }
+
+        // เพิ่มการตรวจสอบเงื่อนไข: ห้ามเกิน 20 คน
+        if (payers.length >= 20) {
+            alert('รายชื่อสมาชิกเต็มแล้วค่ะน้า! (สูงสุด 20 คน) หากต้องการเพิ่มคนใหม่ ต้องลบชื่อคนเก่าออกก่อนน้า');
+            return;
+        }
+
+        if (name === 'ร้าน' || payers.includes(name)) {
+            alert('ชื่อนี้มีอยู่ในระบบแล้วค่ะ');
+            return;
+        }
+
+        payers.push(name);
+        saveStorage();
+        input.value = '';
+        
+        updatePayerDropdown();
+        renderAll();
+        showMsg('เพิ่มรายชื่อสำเร็จ ✨');
+    }
+
+    function deletePayer(name) {
+        if (!confirm(`คุณแน่ใจใช่ไหมว่าจะลบชื่อ "${name}" ออกจากระบบ?`)) return;
+
+        payers = payers.filter(p => p !== name);
+        saveStorage();
+        
+        updatePayerDropdown();
+        renderAll();
+        showMsg('ลบแล้ว 🗑️');
+    }
+
+    function updatePayerDropdown() {
+        const select = document.getElementById('exp-payer');
+        const current = select.value || 'ร้าน';
+
+        select.innerHTML = `<option value="ร้าน">ร้านจ่าย</option>`;
+        payers.forEach(name => {
+            const op = document.createElement('option');
+            op.value = name;
+            op.textContent = name;
+            select.appendChild(op);
+        });
+        select.value = current;
+        
+        // อัปเดตตัวเลขจำนวนคนจ่ายปัจจุบันที่หน้าหัวข้อด้วย
+        const countSpan = document.getElementById('payer-count');
+        if (countSpan) countSpan.textContent = payers.length;
+    }
+
+    function processFile(file) {
+        return new Promise(resolve => {
+            if (!file) { resolve(null); return; }
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.readAsDataURL(file);
+        });
+    }
+
+    async function saveExpense(e) {
+        e.preventDefault();
+        const form = document.getElementById('expense-form');
+        const title = document.getElementById('exp-title').value.trim();
+        const amount = parseFloat(document.getElementById('exp-amount').value);
+
+        if (!title || isNaN(amount) || amount <= 0) {
+            alert('กรอกข้อมูลให้ครบและถูกต้องน้า');
+            return;
+        }
+
+        showMsg('กำลังบันทึก...');
+
+        const slipFile = document.getElementById('exp-slip').files[0];
+        const receiptFile = document.getElementById('exp-receipt').files[0];
+        const id = Date.now();
+
+        expenses.unshift({
+            id,
+            date: document.getElementById('exp-date').value,
+            payer: document.getElementById('exp-payer').value,
+            title,
+            amount,
+            slip: null,
+            receipt: null
+        });
+
+        saveStorage();
+        renderAll();
+        
+        form.reset();
+        setTodayDate();
+        updatePayerDropdown();
+        showMsg('บันทึกแล้ว ✅');
+
+        // จัดการเรื่องรูปภาพแบบเบื้องหลังเพื่อความเร็ว
+        const slip = await processFile(slipFile);
+        const receipt = await processFile(receiptFile);
+        const item = expenses.find(x => x.id === id);
+
+        if (item) {
+            item.slip = slip;
+            item.receipt = receipt;
+            saveStorage();
+            renderAll();
+        }
+    }
+
+    function deleteExpense(id) {
+        if (!confirm('คุณแน่ใจน้าว่าจะลบรายการนี้?')) return;
+
+        expenses = expenses.filter(item => item.id !== id);
+        saveStorage();
+        renderAll();
+        showMsg('ลบแล้ว 🗑️');
+    }
+
+    function renderSummary() {
+        let grand = 0;
+        let shop = 0;
+        const person = {};
+
+        payers.forEach(p => person[p] = 0);
+
+        expenses.forEach(exp => {
+            grand += exp.amount;
+            if (exp.payer === 'ร้าน') {
+                shop += exp.amount;
+            } else {
+                if (person[exp.payer] === undefined) { person[exp.payer] = 0; }
+                person[exp.payer] += exp.amount;
+            }
+        });
+
+        document.getElementById('grand-total').innerHTML = `${grand.toLocaleString('th-TH', {minimumFractionDigits:2})} <span class="currency">บาท</span>`;
+        document.getElementById('shop-total').innerHTML = `${shop.toLocaleString('th-TH', {minimumFractionDigits:2})} <span class="currency">บาท</span>`;
+
+        const box = document.getElementById('dynamic-person-boxes');
+        box.innerHTML = '';
+
+        Object.keys(person).forEach(name => {
+            const card = document.createElement('div');
+            card.className = 'card person';
+            card.innerHTML = `
+                <h3>
+                    <span>👤 ${name}</span>
+                    ${isEditMode ? `<button class="btn-del-payer" style="display:flex" onclick="deletePayer('${name}')">✕</button>` : ''}
+                </h3>
+                <div class="amount">${person[name].toLocaleString('th-TH', {minimumFractionDigits:2})} <span class="currency">บาท</span></div>
+            `;
+            box.appendChild(card);
+        });
+    }
+
+    function viewImage(img) {
+        if (!img) return;
+        document.getElementById('modal-img').src = img;
+        document.getElementById('image-modal').style.display = 'flex';
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('expense-table-body');
+        const th = document.getElementById('th-manage');
+        tbody.innerHTML = '';
+
+        th.style.display = isEditMode ? 'table-cell' : 'none';
+
+        expenses.forEach(exp => {
+            const tr = document.createElement('tr');
+            const payerClass = exp.payer === 'ร้าน' ? 'badge-payer badge-shop' : 'badge-payer';
+
+            // แปลงรูปแบบวันที่แสดงผลให้ดูง่ายขึ้น
+            let formattedDate = '-';
+            if (exp.date) {
+                const d = new Date(exp.date);
+                formattedDate = d.toLocaleDateString('th-TH', {day: '2-digit', month: 'short', year: 'numeric'});
+            }
+
+            tr.innerHTML = `
+                <td>${formattedDate}</td>
+                <td><strong>${exp.title}</strong></td>
+                <td><span class="${payerClass}">${exp.payer}</span></td>
+                <td style="font-weight: bold; color: #d95d26;">${exp.amount.toLocaleString('th-TH', {minimumFractionDigits:2})}</td>
+                <td>${exp.slip ? `<img src="${exp.slip}" class="img-preview" onclick="viewImage('${exp.slip}')">` : '-'}</td>
+                <td>${exp.receipt ? `<img src="${exp.receipt}" class="img-preview" onclick="viewImage('${exp.receipt}')">` : '-'}</td>
+                <td style="display: ${isEditMode ? 'table-cell' : 'none'};">
+                    <button class="btn btn-danger" style="display:inline-block; padding: 5px 12px; font-size: 0.85rem; border-radius: 10px;" onclick="deleteExpense(${exp.id})">ลบ</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        if (expenses.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:30px; color: var(--text-muted);">ยังไม่มีข้อมูลบันทึกรายจ่ายเลยน้า มาร่วมเริ่มบันทึกกันเลย! 🍊</td></tr>`;
+        }
+    }
+
+    function renderAll() {
+        renderSummary();
+        renderTable();
+    }
+
+    // เริ่มทำงานครั้งแรก
+    updatePayerDropdown();
+    renderAll();
 </script>
 
 </body>
