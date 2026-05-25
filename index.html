@@ -187,10 +187,27 @@
             background: var(--card-bg); padding: 25px; border-radius: 24px;
             box-shadow: 0 8px 16px -4px rgba(255, 122, 60, 0.06); border: 2px solid var(--border-color);
         }
-        .table-responsive { overflow-x: auto; border-radius: 16px; border: 2px solid var(--border-color); }
+        
+        /* ล็อกตารางให้สูงประมาณ 5 แถว เลื่อนถูดูได้เลย */
+        .table-responsive { 
+            max-height: 330px; 
+            overflow-y: auto; 
+            overflow-x: auto; 
+            border-radius: 16px; 
+            border: 2px solid var(--border-color); 
+        }
+        
         table { width: 100%; border-collapse: collapse; text-align: left; background: white; }
+        th { 
+            position: sticky;
+            top: 0;
+            background-color: #fff5f0; 
+            color: #d95d26; 
+            font-weight: bold; 
+            z-index: 10;
+            box-shadow: 0 1px 0 var(--border-color);
+        }
         th, td { padding: 14px 18px; border-bottom: 1px solid var(--border-color); }
-        th { background-color: #fff5f0; color: #d95d26; font-weight: bold; }
         
         .badge-payer { background: #ffe8cc; color: #d9480f; padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; }
         .badge-shop { background: #fff3bf; color: #f59e0b; }
@@ -296,7 +313,7 @@
                         <th style="width: 15%;">ยอดเงิน</th>
                         <th style="width: 10%;">สลิป</th>
                         <th style="width: 10%;">ใบเสร็จ</th>
-                        <th id="th-manage" style="width: 10%; display: none;">จัดการ</th>
+                        <th id="th-manage" style="width: 10%;">จัดการ</th>
                     </tr>
                 </thead>
                 <tbody id="expense-table-body"></tbody>
@@ -320,18 +337,15 @@
         isEditMode = !isEditMode;
         const btn = document.getElementById('edit-toggle-btn');
         const editWidgets = document.getElementById('edit-widgets');
-        const thManage = document.getElementById('th-manage');
 
         if(isEditMode) {
             btn.textContent = '🔒 ปิดโหมดแก้ไข';
             btn.classList.add('active');
             editWidgets.style.display = 'grid'; 
-            thManage.style.display = 'table-cell'; 
         } else {
             btn.textContent = '⚙️ เปิดโหมดแก้ไข';
             btn.classList.remove('active');
             editWidgets.style.display = 'none'; 
-            thManage.style.display = 'none'; 
         }
         
         renderAll(); 
@@ -420,18 +434,18 @@
         expenses.push(newExpense);
         localStorage.setItem('expenses_cute', JSON.stringify(expenses));
         
+        // ล้างข้อมูลในช่องกรอกทันที
         document.getElementById('exp-title').value = '';
         document.getElementById('exp-amount').value = '';
         document.getElementById('exp-slip').value = '';
         document.getElementById('exp-receipt').value = '';
 
-        // อัปเดตข้อมูลขึ้นหน้าจอทันทีแบบ Real-time ตั้งแต่อยู่ในโหมดแก้ไข!
+        // บังคับอัปเดตหน้าจอทันทีแบบ Real-time (ไม่ต้องปิดโหมดแก้ไขก็เห็น)
         renderAll();
         
-        // เด้งป๊อปอัพแจ้งเตือนหลังจากตัวเลขเปลี่ยนเรียบร้อย
         setTimeout(() => {
             alert('บันทึกเรียบร้อยแล้วค่ะ!');
-        }, 80);
+        }, 50);
     }
 
     function deleteExpense(id) {
@@ -439,12 +453,12 @@
             expenses = expenses.filter(exp => exp.id !== id);
             localStorage.setItem('expenses_cute', JSON.stringify(expenses));
             
-            // อัปเดตข้อมูลขึ้นหน้าจอทันทีแบบ Real-time
+            // อัปเดตหน้าจอทันทีแบบ Real-time ทันทีที่กดลบ
             renderAll();
             
             setTimeout(() => {
                 alert('ลบรายการเรียบร้อยแล้วค่ะ!');
-            }, 80);
+            }, 50);
         }
     }
 
@@ -465,11 +479,9 @@
             }
         });
 
-        // อัปเดตกล่องรวมและกล่องร้าน
         document.getElementById('grand-total').innerHTML = grandTotal.toLocaleString('th-TH', {minimumFractionDigits: 2}) + '<span class="currency"> บาท</span>';
         document.getElementById('shop-total').innerHTML = shopTotal.toLocaleString('th-TH', {minimumFractionDigits: 2}) + '<span class="currency"> บาท</span>';
 
-        // วาดกล่องคนจ่ายแบบเรียลไทม์ลงพื้นที่ Dynamic ป้องกันการบล็อกโหมดแก้ไข
         const dynamicContainer = document.getElementById('dynamic-person-boxes');
         dynamicContainer.innerHTML = '';
 
@@ -501,7 +513,15 @@
 
     function renderTable() {
         const tbody = document.getElementById('expense-table-body');
+        const thManage = document.getElementById('th-manage');
         tbody.innerHTML = '';
+
+        // ควบคุมการแสดงผลของหัวตาราง "จัดการ" ตามโหมดแก้ไขปัจจุบัน
+        if(isEditMode) {
+            thManage.style.display = 'table-cell';
+        } else {
+            thManage.style.display = 'none';
+        }
 
         const sortedExpenses = [...expenses].sort((a,b) => new Date(b.date) - new Date(a.date));
 
@@ -514,7 +534,8 @@
             const receiptHtml = exp.receipt ? `<img src="${exp.receipt}" class="img-preview" onclick="viewImage('${exp.receipt}')">` : '<span class="no-img">ไม่มี</span>';
             const payerBadgeClass = exp.payer === 'ร้าน' ? 'badge-payer badge-shop' : 'badge-payer';
 
-            const tdManageHtml = isEditMode ? `<td><button class="btn btn-danger" style="display:inline-block; padding: 5px 12px; font-size: 0.85rem; border-radius: 10px;" onclick="deleteExpense(${exp.id})">ลบ</button></td>` : '';
+            // แสดงหรือซ่อนปุ่มลบตามสถานะโหมดแก้ไขทันที
+            const tdManageHtml = isEditMode ? `<td><button class="btn btn-danger" style="display:inline-block; padding: 5px 12px; font-size: 0.85rem; border-radius: 10px;" onclick="deleteExpense(${exp.id})">ลบ</button></td>` : '<td style="display:none;"></td>';
 
             tr.innerHTML = `
                 <td>${formattedDate}</td>
@@ -529,8 +550,7 @@
         });
 
         if(sortedExpenses.length === 0) {
-            const colspanVal = isEditMode ? 7 : 6;
-            tbody.innerHTML = `<tr><td colspan="${colspanVal}" style="text-align: center; color: var(--text-muted); padding: 30px;">ยังไม่มีข้อมูลบันทึกรายจ่ายเลยน้า มาร่วมเริ่มบันทึกกันเลย! 🍊</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">ยังไม่มีข้อมูลบันทึกรายจ่ายเลยน้า มาร่วมเริ่มบันทึกกันเลย! 🍊</td></tr>`;
         }
     }
 
@@ -539,6 +559,7 @@
         renderTable();
     }
 
+    // เริ่มต้นระบบครั้งแรก
     updatePayerDropdown();
     renderAll();
 </script>
