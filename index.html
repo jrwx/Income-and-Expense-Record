@@ -66,7 +66,7 @@
             margin-bottom: 30px;
         }
         
-        /* แก้ไขกล่องยอดรวม: ไม่ใช่ปุ่มกดแล้ว และไม่มีแว่นขยาย */
+        /* กล่องยอดรวม: ไม่ใช่ปุ่มกด ไม่มีแว่นขยาย */
         .card.total {
             width: 100%;
             box-sizing: border-box;
@@ -129,11 +129,11 @@
         .form-group { margin-bottom: 18px; }
         label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.95rem; color: #5c4d4c; }
         
-        /* แก้ไขความสูงและฟอนต์ของช่องวันที่ให้เท่ากับช่องอื่นเสมอกันเป๊ะๆ */
+        /* สั่งล็อกความสูงและหน้าตาของ Input / Select ทั้งหมดให้เท่ากันเสมอกันเป๊ะๆ */
         input, select { 
             width: 100%; 
-            padding: 12px; 
-            height: 48px; /* บังคับความสูงให้เท่ากันทุกเบราว์เซอร์ */
+            height: 48px; /* ล็อกความสูง */
+            padding: 0 14px; /* รีเซ็ตระยะขอบบนล่างป้องกันกล่องยักษ์ */
             border: 2px solid var(--border-color); 
             border-radius: 14px; 
             box-sizing: border-box; 
@@ -141,6 +141,24 @@
             font-family: inherit;
             color: var(--text-main); 
             background-color: #fffdfb; 
+            -webkit-appearance: none; /* ล้างค่าพิเศษของระบบ iOS/Safari */
+            appearance: none;
+        }
+
+        /* สำหรับปุ่มเลือกในหน้าต่าง select ให้แสดงลูกศรปกติ */
+        select {
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%234a3e3d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+
+        /* แก้ไขพิเศษ: บังคับให้ช่องที่เป็นปฏิทิน (Date) มีขนาดหน้าตากล่องเท่าคนอื่น ไม่ขยายบวม */
+        input[type="date"] {
+            display: inline-flex;
+            align-items: center;
+            padding: 0 14px;
         }
         
         /* โครงสร้างช่องกรอก วันที่ และ ใครจ่าย */
@@ -157,7 +175,13 @@
         
         .name-manager { display: flex; gap: 10px; }
         .name-manager input { flex: 1; }
-        .name-manager .btn { width: auto; white-space: nowrap; }
+        .name-manager .btn { width: auto; white-space: nowrap; height: 48px; }
+        
+        /* สำหรับช่องอัปโหลดไฟล์ แนบสลิป/ใบเสร็จ */
+        input[type="file"] {
+            padding-top: 10px;
+            font-size: 0.9rem;
+        }
         
         /* Table Section */
         .table-section { background: var(--card-bg); padding: 25px; border-radius: 24px; box-shadow: 0 8px 16px -4px rgba(255, 122, 60, 0.06); border: 2px solid var(--border-color); margin-bottom: 20px; }
