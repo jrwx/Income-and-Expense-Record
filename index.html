@@ -6,6 +6,7 @@
     <title>บันทึกรายจ่าย 💸</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
     
     <style>
         :root {
@@ -56,7 +57,7 @@
             border-radius: 24px;
             border: 4.5px solid #d95d26;
             box-shadow: 0 10px 25px -5px rgba(255, 122, 60, 0.08);
-            position: relative; /* 👈 ตั้งค่าเพื่อให้ปุ่มกุญแจมาล็อกตำแหน่งมุมขวาบนของกรอบนี้ได้ */
+            position: relative;
         }
         .web-header-text h1 { 
             margin: 0; 
@@ -159,7 +160,6 @@
         .form-group { margin-bottom: 18px; }
         label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.95rem; color: #5c4d4c; }
 
-        /* สั่งล็อกความสูงและหน้าตาของ Input / Select ทั้งหมดให้เท่ากันเสมอกันเป๊ะๆ */
         input, select { 
             width: 100%; 
             height: 48px; 
@@ -372,6 +372,7 @@
     };
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
+    const storage = firebase.storage(); // 📦 เปิดตู้เก็บไฟล์รูปภาพอัปเกรดใหม่ของน้า
 
     // 🔒 ล็อกชื่ออีเมลที่น้าอนุญาตให้ใช้งานตรงนี้ได้เลยครับน้า
     let allowedEmail = "customer123@gmail.com"; 
@@ -418,39 +419,29 @@
         });
     }
 
-    // --- ส่วนฟังก์ชันจัดเก็บรายจ่ายดั้งเดิมของน้าทั้งหมด ห้ามแตะต้อง ---
-    let db;
-    let payers = JSON.parse(localStorage.getItem('payers_cute')) || [];
+    // Variables ตัวแปรซิงค์ออนไลน์
+    let payers = [];
     let expenses = [];
     let isEditMode = false;
     let currentFilterPayer = 'all';
 
     function initApp() {
-        const request = indexedDB.open("CuteExpenseUltimateDB", 1);
-        request.onupgradeneeded = function(e) {
-            db = e.target.result;
-            if (!db.objectStoreNames.contains("expenses")) {
-                db.createObjectStore("expenses", { keyPath: "id" });
-            }
-        };
-        request.onsuccess = function(e) {
-            db = e.target.result;
-            loadExpensesFromDB();
-        };
-        request.onerror = function() { alert("เปิดฐานข้อมูลล้มเหลว"); };
         setTodayDate();
-    }
+        
+        // 1. ดึงข้อมูลรายชื่อสมาชิก (Payers) จาก Firebase Cloud
+        database.ref('cute_payers').on('value', (snapshot) => {
+            payers = snapshot.val() || [];
+            updatePayerDropdown();
+            renderAll();
+        });
 
-    function loadExpensesFromDB() {
-        const transaction = db.transaction(["expenses"], "readonly");
-        const store = transaction.objectStore("expenses");
-        const getAll = store.getAll();
-        getAll.onsuccess = function() {
-            expenses = getAll.result || [];
+        // 2. ดึงประวัติรายจ่ายทั้งหมด (Expenses) จาก Firebase Cloud
+        database.ref('cute_expenses').on('value', (snapshot) => {
+            const data = snapshot.val() || {};
+            expenses = Object.keys(data).map(key => data[key]);
             expenses.sort((a, b) => b.id - a.id);
             renderAll();
-            updatePayerDropdown();
-        };
+        });
     }
 
     function setTodayDate() { document.getElementById('exp-date').valueAsDate = new Date(); }
@@ -470,14 +461,14 @@
         isEditMode = !isEditMode;
         const btn = document.getElementById('edit-toggle-btn');
         const edit = document.getElementById('edit-widgets');
-        const keyBtn = document.getElementById('header-key-btn'); // ดึงปุ่มกุญแจหัวเว็บมาควบคุมสิทธิ์
+        const keyBtn = document.getElementById('header-key-btn');
         
         if (isEditMode) {
             btn.textContent = '🔒 ปิดโหมดแก้ไข'; btn.classList.add('active'); edit.style.display = 'grid';
-            if (keyBtn) keyBtn.style.display = 'none'; // 👈 เมื่อเปิดโหมดแก้ไข -> สั่งซ่อนกุญแจหัวเว็บทันที!
+            if (keyBtn) keyBtn.style.display = 'none';
         } else {
             btn.textContent = '⚙️ เปิดโหมดแก้ไข'; btn.classList.remove('active'); edit.style.display = 'none';
-            if (keyBtn) keyBtn.style.display = 'block'; // ปิดโหมดแก้ไข -> เอากุญแจหัวเว็บกลับมาโชว์
+            if (keyBtn) keyBtn.style.display = 'block';
         }
         renderAll();
     }
@@ -487,17 +478,19 @@
         if (!name) { alert('กรอกชื่อก่อนน้า 🍊'); return; }
         if (payers.length >= 20) { alert('รายชื่อสมาชิกเต็มแล้วน้า! (สูงสุด 20 คน)'); return; }
         if (name === 'ร้าน' || payers.includes(name)) { alert('ชื่อนี้มีอยู่ในระบบแล้วค่ะ'); return; }
+        
         payers.push(name);
-        localStorage.setItem('payers_cute', JSON.stringify(payers));
-        input.value = ''; updatePayerDropdown(); renderAll(); showMsg('เพิ่มรายชื่อสำเร็จ ✨');
+        database.ref('cute_payers').set(payers);
+        input.value = '';
+        showMsg('เพิ่มรายชื่อสำเร็จ ✨');
     }
 
     function deletePayer(name) {
         if (!confirm(`คุณแน่ใจใช่ไหมว่าจะลบชื่อ "${name}" ออกจากระบบ?`)) return;
         payers = payers.filter(p => p !== name);
-        localStorage.setItem('payers_cute', JSON.stringify(payers));
+        database.ref('cute_payers').set(payers);
         if (currentFilterPayer === name) currentFilterPayer = 'all';
-        updatePayerDropdown(); renderAll(); showMsg('ลบแล้ว 🗑️');
+        showMsg('ลบแล้ว 🗑️');
     }
 
     function updatePayerDropdown() {
@@ -513,7 +506,8 @@
         if (countSpan) countSpan.textContent = payers.length;
     }
 
-    function compressImageFile(file) {
+    // ฟังก์ชันย่อภาพเป็น Blob (แทนที่ Base64 แบบเดิมเพื่อโยนขึ้น Storage ตู้รูปภาพได้โดยตรง)
+    function compressImageToBlob(file) {
         return new Promise(resolve => {
             if (!file) { resolve(null); return; }
             const reader = new FileReader();
@@ -528,9 +522,24 @@
                     canvas.width = width; canvas.height = height;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
-                    resolve(canvas.toDataURL('image/jpeg', 0.7));
+                    canvas.toBlob((blob) => {
+                        resolve(blob);
+                    }, 'image/jpeg', 0.7);
                 };
             };
+        });
+    }
+
+    // ฟังก์ชันช่วยอัปโหลดไฟล์ Blob ขึ้น Firebase Storage เพื่อรับลิงก์ URL
+    function uploadToStorage(blob, path) {
+        return new Promise((resolve, reject) => {
+            if (!blob) { resolve(null); return; }
+            const storageRef = storage.ref().child(path);
+            storageRef.put(blob).then((snapshot) => {
+                snapshot.ref.getDownloadURL().then((url) => {
+                    resolve(url);
+                }).catch(reject);
+            }).catch(reject);
         });
     }
 
@@ -541,38 +550,58 @@
         const amount = parseFloat(document.getElementById('exp-amount').value);
         if (!title || isNaN(amount) || amount <= 0) { alert('กรอกข้อมูลให้ครบและถูกต้องน้า'); return; }
 
-        showMsg('กำลังย่อรูปและเซฟข้อมูล...');
+        showMsg('กำลังบีบอัดและอัปโหลดรูปภาพขึ้นคลาวด์...');
         const slipFile = document.getElementById('exp-slip').files[0];
         const receiptFile = document.getElementById('exp-receipt').files[0];
         const id = Date.now();
 
-        const slip = await compressImageFile(slipFile);
-        const receipt = await compressImageFile(receiptFile);
+        try {
+            // 1. บีบอัดรูปภาพ
+            const slipBlob = await compressImageToBlob(slipFile);
+            const receiptBlob = await compressImageToBlob(receiptFile);
 
-        const newExpense = {
-            id, date: document.getElementById('exp-date').value,
-            payer: document.getElementById('exp-payer').value,
-            title, amount, slip: slip, receipt: receipt
-        };
+            // 2. อัปโหลดขึ้นตู้เก็บรูปภาพภาพของ Firebase Storage แยกต่างหากเพื่อประหยัดพื้นที่
+            const slipUrl = await uploadToStorage(slipBlob, `slips/${id}_slip.jpg`);
+            const receiptUrl = await uploadToStorage(receiptBlob, `receipts/${id}_receipt.jpg`);
 
-        expenses.unshift(newExpense);
-        
-        const transaction = db.transaction(["expenses"], "readwrite");
-        transaction.objectStore("expenses").put(newExpense);
+            const newExpense = {
+                id, date: document.getElementById('exp-date').value,
+                payer: document.getElementById('exp-payer').value,
+                title, amount, 
+                slip: slipUrl || "", // เก็บเป็น Link สั้นๆ แทน
+                receipt: receiptUrl || "" // เก็บเป็น Link สั้นๆ แทน
+            };
 
-        renderAll(); form.reset(); setTodayDate(); updatePayerDropdown();
-        showMsg('บันทึกเรียบร้อยแล้ว ✅');
+            // 3. บันทึกข้อมูลข้อความตัวเลขลง Realtime Database
+            database.ref('cute_expenses/' + id).set(newExpense)
+                .then(() => {
+                    form.reset(); 
+                    setTodayDate(); 
+                    updatePayerDropdown();
+                    showMsg('บันทึกเรียบร้อยทั่วโลกแล้วน้า ✅');
+                });
+        } catch (error) {
+            console.error(error);
+            alert('เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ ลองใหม่อีกครั้งนะคะ');
+        }
     }
 
     function deleteExpense(id) {
         if (!confirm('คุณแน่ใจน้าว่าจะลบรายการนี้?')) return;
-        expenses = expenses.filter(item => item.id !== id);
-        const transaction = db.transaction(["expenses"], "readwrite");
-        transaction.objectStore("expenses").delete(id);
-        renderAll(); showMsg('ลบแล้ว 🗑️');
+        
+        // ค้นหาเพื่อลบรูปต้นฉบับใน Storage ด้วยเพื่อไม่ให้ขยะค้างตู้ครับน้า
+        const item = expenses.find(exp => exp.id === id);
+        if (item) {
+            if (item.slip) { try { storage.refFromURL(item.slip).delete(); } catch(e){} }
+            if (item.receipt) { try { storage.refFromURL(item.receipt).delete(); } catch(e){} }
+        }
+
+        database.ref('cute_expenses/' + id).remove()
+            .then(() => {
+                showMsg('ลบข้อมูลออกจากระบบคลาวด์แล้ว 🗑️');
+            });
     }
 
-    /* ⚙️ ฟังก์ชันกรองชื่อประวัติแบบรวมยอดเงิน (น้าก๊อปชุดนี้ไปทับได้เลยครับ) */
     function filterByPayer(payerName) {
         currentFilterPayer = payerName;
         renderTable();
@@ -586,12 +615,10 @@
             clearBtn.style.display = 'none';
             tableSec.classList.remove('highlight-filter');
         } else {
-            // 💰 ส่วนที่เพิ่มเข้ามา: คำนวณยอดรวมเฉพาะคนที่เราคลิกแว่นขยายดู
             const filteredTotal = expenses
                 .filter(exp => exp.payer === payerName)
                 .reduce((sum, exp) => sum + exp.amount, 0);
 
-            // แสดงยอดเงินรวมต่อท้ายชื่อให้อย่างสวยงามครับน้า
             titleEl.textContent = `🔍 รายจ่ายของคุณ: ${payerName} (รวมยอด: ${filteredTotal.toLocaleString('th-TH', {minimumFractionDigits:2})} บาท)`;
             clearBtn.style.display = 'inline-block';
             tableSec.classList.add('highlight-filter');
