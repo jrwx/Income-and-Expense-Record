@@ -327,692 +327,808 @@
 </div>
 
 <script>
-let payers = JSON.parse(localStorage.getItem('payers_cute')) || [];
-let expenses = JSON.parse(localStorage.getItem('expenses_cute')) || [];
-let isEditMode = false;
+
+let payers =
+JSON.parse(
+localStorage.getItem(
+'payers_cute'
+)
+)||[];
+
+let expenses =
+JSON.parse(
+localStorage.getItem(
+'expenses_cute'
+)
+)||[];
+
+let isEditMode=false;
 
 function setTodayDate(){
-    document.getElementById(
-        'exp-date'
-    ).valueAsDate = new Date();
+
+document.getElementById(
+'exp-date'
+).valueAsDate=
+new Date();
+
 }
 
 setTodayDate();
 
 function saveStorage(){
 
-    localStorage.setItem(
-        'payers_cute',
-        JSON.stringify(payers)
-    );
+localStorage.setItem(
+'payers_cute',
+JSON.stringify(
+payers
+)
+);
 
-    localStorage.setItem(
-        'expenses_cute',
-        JSON.stringify(expenses)
-    );
+localStorage.setItem(
+'expenses_cute',
+JSON.stringify(
+expenses
+)
+);
 
 }
 
 function showMsg(text){
 
-    const old =
-    document.getElementById(
-        'toast-msg'
-    );
+let box=
+document.getElementById(
+'toast-msg'
+);
 
-    if(old){
-        old.remove();
-    }
+if(!box){
 
-    const box =
-    document.createElement(
-        'div'
-    );
+box=
+document.createElement(
+'div'
+);
 
-    box.id='toast-msg';
+box.id=
+'toast-msg';
 
-    box.innerHTML=text;
+box.style.cssText=
+`
+position:fixed;
+bottom:20px;
+left:50%;
+transform:translateX(-50%);
+background:#2ec4b6;
+color:white;
+padding:12px 18px;
+border-radius:14px;
+font-weight:bold;
+z-index:99999;
+box-shadow:0 5px 16px rgba(0,0,0,.15);
+`;
 
-    box.style.cssText=`
-    position:fixed;
-    bottom:25px;
-    left:50%;
-    transform:translateX(-50%);
-    background:#2ec4b6;
-    color:white;
-    padding:12px 20px;
-    border-radius:14px;
-    font-weight:bold;
-    z-index:9999;
-    box-shadow:0 6px 18px rgba(0,0,0,.18);
-    `;
+document.body.appendChild(
+box
+);
 
-    document.body.appendChild(box);
+}
 
-    setTimeout(()=>{
+box.innerHTML=text;
 
-        box.remove();
+box.style.opacity='1';
 
-    },1800);
+clearTimeout(
+box.timer
+);
+
+box.timer=
+setTimeout(()=>{
+
+box.style.opacity='0';
+
+},1700);
 
 }
 
 function toggleEditMode(){
 
-    isEditMode=!isEditMode;
+isEditMode=
+!isEditMode;
 
-    const btn=
-    document.getElementById(
-        'edit-toggle-btn'
-    );
+const btn=
+document.getElementById(
+'edit-toggle-btn'
+);
 
-    const edit=
-    document.getElementById(
-        'edit-widgets'
-    );
+const edit=
+document.getElementById(
+'edit-widgets'
+);
 
-    if(isEditMode){
+if(isEditMode){
 
-        btn.textContent=
-        '🔒 ปิดโหมดแก้ไข';
+btn.textContent=
+'🔒 ปิดโหมดแก้ไข';
 
-        btn.classList.add(
-            'active'
-        );
+btn.classList.add(
+'active'
+);
 
-        edit.style.display=
-        'grid';
+edit.style.display=
+'grid';
 
-    }else{
+}else{
 
-        btn.textContent=
-        '⚙️ เปิดโหมดแก้ไข';
+btn.textContent=
+'⚙️ เปิดโหมดแก้ไข';
 
-        btn.classList.remove(
-            'active'
-        );
+btn.classList.remove(
+'active'
+);
 
-        edit.style.display=
-        'none';
+edit.style.display=
+'none';
 
-    }
+}
 
-    renderAll();
+renderAll();
 
 }
 
 function addPayerName(){
 
-    const input=
-    document.getElementById(
-        'new-name'
-    );
+const input=
+document.getElementById(
+'new-name'
+);
 
-    const name=
-    input.value.trim();
+const name=
+input.value.trim();
 
-    if(!name){
+if(!name){
 
-        alert(
-            'กรอกชื่อก่อน'
-        );
+alert(
+'กรอกชื่อก่อน'
+);
 
-        return;
-    }
+return;
 
-    if(
-        name==='ร้าน'
-        ||
-        payers.includes(name)
-    ){
+}
 
-        alert(
-            'ชื่อนี้มีแล้ว'
-        );
+if(
+name==='ร้าน'||
+payers.includes(name)
+){
 
-        return;
+alert(
+'ชื่อนี้มีแล้ว'
+);
 
-    }
+return;
 
-    payers.push(name);
+}
 
-    saveStorage();
+payers.push(name);
 
-    input.value='';
+saveStorage();
 
-    updatePayerDropdown();
+input.value='';
 
-    renderAll();
+updatePayerDropdown();
 
-    showMsg(
-        'เพิ่มชื่อแล้ว ✅'
-    );
+renderAll();
 
 }
 
 function deletePayer(name){
 
-    if(
-        !confirm(
-            `ลบ ${name} ?`
-        )
-    ) return;
+if(
+!confirm(
+`ลบ ${name} ?`
+)
+)return;
 
-    payers=
-    payers.filter(
-        p=>p!==name
-    );
+payers=
+payers.filter(
+p=>p!==name
+);
 
-    saveStorage();
+saveStorage();
 
-    updatePayerDropdown();
+updatePayerDropdown();
 
-    renderAll();
+renderAll();
 
-    showMsg(
-        'ลบรายชื่อแล้ว 🗑️'
-    );
+showMsg(
+'ลบแล้ว 🗑️'
+);
 
 }
 
 function updatePayerDropdown(){
 
-    const select=
-    document.getElementById(
-        'exp-payer'
-    );
+const select=
+document.getElementById(
+'exp-payer'
+);
 
-    const current=
-    select.value||
-    'ร้าน';
+const current=
+select.value||
+'ร้าน';
 
-    select.innerHTML=
-    `
-    <option value="ร้าน">
-    ร้านจ่าย
-    </option>
-    `;
+select.innerHTML=
+`
+<option value="ร้าน">
+ร้านจ่าย
+</option>
+`;
 
-    payers.forEach(name=>{
+payers.forEach(name=>{
 
-        const op=
-        document.createElement(
-            'option'
-        );
+const op=
+document.createElement(
+'option'
+);
 
-        op.value=name;
-        op.textContent=name;
+op.value=name;
 
-        select.appendChild(op);
+op.textContent=name;
 
-    });
+select.appendChild(op);
 
-    select.value=
-    current;
+});
+
+select.value=
+current;
 
 }
 
 function processFile(file){
 
-    return new Promise(
-        resolve=>{
+return new Promise(resolve=>{
 
-        if(!file){
+if(!file){
 
-            resolve(null);
+resolve(null);
 
-            return;
+return;
 
-        }
+}
 
-        const reader=
-        new FileReader();
+const reader=
+new FileReader();
 
-        reader.onload=
-        ()=>resolve(
-            reader.result
-        );
+reader.onload=
+()=>resolve(
+reader.result
+);
 
-        reader.readAsDataURL(
-            file
-        );
+reader.readAsDataURL(
+file
+);
 
-    });
+});
 
 }
 
 async function saveExpense(e){
 
-    e.preventDefault();
+e.preventDefault();
 
-    const title =
-    document.getElementById(
-    'exp-title'
-    ).value.trim();
+const form=
+document.getElementById(
+'expense-form'
+);
 
-    const amount =
-    parseFloat(
-    document.getElementById(
-    'exp-amount'
-    ).value
-    );
+const title=
+document.getElementById(
+'exp-title'
+)
+.value
+.trim();
 
-    if(
-    !title ||
-    isNaN(amount) ||
-    amount<=0
-    ){
+const amount=
+parseFloat(
+document.getElementById(
+'exp-amount'
+).value
+);
 
-        alert(
-        'กรอกข้อมูลให้ครบ'
-        );
+if(
+!title||
+isNaN(amount)||
+amount<=0
+){
 
-        return;
-    }
+alert(
+'กรอกข้อมูลให้ครบ'
+);
 
-    showMsg(
-    'กำลังบันทึก...'
-    );
+return;
 
-    const slip =
-    await processFile(
-    document
-    .getElementById(
-    'exp-slip'
-    )
-    .files[0]
-    );
+}
 
-    const receipt =
-    await processFile(
-    document
-    .getElementById(
-    'exp-receipt'
-    )
-    .files[0]
-    );
+showMsg(
+'กำลังบันทึก...'
+);
 
-    expenses.unshift({
+const id=
+Date.now();
 
-        id:Date.now(),
+expenses.unshift({
 
-        date:
-        document.getElementById(
-        'exp-date'
-        ).value,
+id,
 
-        payer:
-        document.getElementById(
-        'exp-payer'
-        ).value,
+date:
+document.getElementById(
+'exp-date'
+).value,
 
-        title,
+payer:
+document.getElementById(
+'exp-payer'
+).value,
 
-        amount,
+title,
 
-        slip,
+amount,
 
-        receipt
+slip:null,
 
-    });
+receipt:null
 
-    saveStorage();
+});
 
-    renderAll();
+saveStorage();
 
-    document
-    .getElementById(
-    'expense-form'
-    )
-    .reset();
+renderAll();
 
-    setTodayDate();
+form.reset();
 
-    updatePayerDropdown();
+setTodayDate();
 
-    showMsg(
-    'บันทึกแล้ว ✅'
-    );
+updatePayerDropdown();
+
+showMsg(
+'บันทึกแล้ว ✅'
+);
+
+const slip=
+await processFile(
+document.getElementById(
+'exp-slip'
+).files[0]
+);
+
+const receipt=
+await processFile(
+document.getElementById(
+'exp-receipt'
+).files[0]
+);
+
+const item=
+expenses.find(
+x=>x.id===id
+);
+
+if(item){
+
+item.slip=
+slip;
+
+item.receipt=
+receipt;
+
+saveStorage();
+
+renderAll();
+
+}
 
 }
 
 function deleteExpense(id){
 
-    if(
-        !confirm(
-            'ลบรายการนี้ ?'
-        )
-    ) return;
+if(
+!confirm(
+'ลบรายการนี้ ?'
+)
+)return;
 
-    expenses=
-    expenses.filter(
-        item=>
-        item.id!==id
-    );
+expenses=
+expenses.filter(
+item=>
+item.id!==id
+);
 
-    saveStorage();
+saveStorage();
 
-    renderAll();
+renderAll();
 
-    showMsg(
-        'ลบแล้ว 🗑️'
-    );
+showMsg(
+'ลบแล้ว 🗑️'
+);
 
 }
 
 function renderSummary(){
 
-    let grand=0;
-    let shop=0;
+let grand=0;
+let shop=0;
 
-    const person={};
+const person={};
 
-    payers.forEach(
-        p=>person[p]=0
-    );
+payers.forEach(
+p=>
+person[p]=0
+);
 
-    expenses.forEach(exp=>{
+expenses.forEach(exp=>{
 
-        grand+=exp.amount;
+grand+=exp.amount;
 
-        if(
-            exp.payer==='ร้าน'
-        ){
+if(
+exp.payer==='ร้าน'
+){
 
-            shop+=exp.amount;
+shop+=
+exp.amount;
 
-        }else{
+}else{
 
-            if(
-                person[
-                exp.payer
-                ]===undefined
-            ){
+if(
+person[
+exp.payer
+]
+===undefined
+){
 
-                person[
-                exp.payer
-                ]=0;
+person[
+exp.payer
+]=0;
 
-            }
+}
 
-            person[
-            exp.payer
-            ]+=exp.amount;
+person[
+exp.payer
+]+=exp.amount;
 
-        }
+}
 
-    });
+});
 
-    document.getElementById(
-    'grand-total'
-    ).innerHTML=
-    `
-    ${grand.toLocaleString(
-    'th-TH',
-    {
-    minimumFractionDigits:2
-    }
-    )}
+document.getElementById(
+'grand-total'
+).innerHTML=
 
-    <span class="currency">
-    บาท
-    </span>
-    `;
+`${grand.toLocaleString(
+'th-TH',
+{
+minimumFractionDigits:2
+}
+)}
 
-    document.getElementById(
-    'shop-total'
-    ).innerHTML=
-    `
-    ${shop.toLocaleString(
-    'th-TH',
-    {
-    minimumFractionDigits:2
-    }
-    )}
+<span class="currency">
+บาท
+</span>`;
 
-    <span class="currency">
-    บาท
-    </span>
-    `;
+document.getElementById(
+'shop-total'
+).innerHTML=
 
-    const box=
-    document.getElementById(
-        'dynamic-person-boxes'
-    );
+`${shop.toLocaleString(
+'th-TH',
+{
+minimumFractionDigits:2
+}
+)}
 
-    box.innerHTML='';
+<span class="currency">
+บาท
+</span>`;
 
-    Object.keys(person)
-    .forEach(name=>{
+const box=
+document.getElementById(
+'dynamic-person-boxes'
+);
 
-        const card=
-        document.createElement(
-            'div'
-        );
+box.innerHTML='';
 
-        card.className=
-        'card person';
+Object.keys(
+person
+).forEach(name=>{
 
-        card.innerHTML=
-        `
-        <h3>
+const card=
+document.createElement(
+'div'
+);
 
-        👤 ${name}
+card.className=
+'card person';
 
-        ${
-        isEditMode
-        ?
-        `
-        <button
-        class="btn-del-payer"
-        style="display:flex"
-        onclick="
-        deletePayer(
-        '${name}'
-        )
-        ">
-        ✕
-        </button>
-        `
-        :
-        ''
-        }
+card.innerHTML=
+`
+<h3>
 
-        </h3>
+<span>
 
-        <div class="amount">
+👤 ${name}
 
-        ${person[name]
-        .toLocaleString(
-        'th-TH',
-        {
-        minimumFractionDigits:2
-        }
-        )}
+</span>
 
-        <span class="currency">
-        บาท
-        </span>
+${
+isEditMode
+?
 
-        </div>
-        `;
+`<button
+class=
+"btn-del-payer"
+style=
+"display:flex"
+onclick=
+"deletePayer(
+'${name}'
+)">
+✕
+</button>`
 
-        box.appendChild(card);
+:''
 
-    });
+}
+
+</h3>
+
+<div class=
+"amount">
+
+${person[name]
+.toLocaleString(
+'th-TH',
+{
+minimumFractionDigits:2
+}
+)}
+
+<span class=
+"currency">
+
+บาท
+
+</span>
+
+</div>
+`;
+
+box.appendChild(
+card
+);
+
+});
 
 }
 
 function viewImage(img){
 
-    if(!img)return;
+if(!img)return;
 
-    document.getElementById(
-    'modal-img'
-    ).src=img;
+document.getElementById(
+'modal-img'
+).src=img;
 
-    document.getElementById(
-    'image-modal'
-    ).style.display=
-    'flex';
+document.getElementById(
+'image-modal'
+).style.display=
+'flex';
 
 }
 
 function renderTable(){
 
-    const tbody=
-    document.getElementById(
-    'expense-table-body'
-    );
+const tbody=
+document.getElementById(
+'expense-table-body'
+);
 
-    const th=
-    document.getElementById(
-    'th-manage'
-    );
+const th=
+document.getElementById(
+'th-manage'
+);
 
-    tbody.innerHTML='';
+tbody.innerHTML='';
 
-    th.style.display=
-    isEditMode
-    ?''
-    :'none';
+th.style.display=
 
-    expenses.forEach(exp=>{
+isEditMode
 
-        const tr=
-        document.createElement(
-            'tr'
-        );
+?
 
-        tr.innerHTML=
-        `
-        <td>
-        ${new Date(
-        exp.date
-        ).toLocaleDateString(
-        'th-TH'
-        )}
-        </td>
+'table-cell'
 
-        <td>
-        ${exp.title}
-        </td>
+:
 
-        <td>
-        ${exp.payer}
-        </td>
+'none';
 
-        <td>
-        ${exp.amount
-        .toLocaleString(
-        'th-TH',
-        {
-        minimumFractionDigits:2
-        }
-        )}
-        </td>
+expenses.forEach(exp=>{
 
-        <td>
-        ${
-        exp.slip
-        ?
-        `<img
-        src="${exp.slip}"
-        class="img-preview"
-        onclick="
-        viewImage(
-        '${exp.slip}'
-        )
-        ">`
-        :
-        '-'
-        }
-        </td>
+const tr=
+document.createElement(
+'tr'
+);
 
-        <td>
-        ${
-        exp.receipt
-        ?
-        `<img
-        src="${exp.receipt}"
-        class="img-preview"
-        onclick="
-        viewImage(
-        '${exp.receipt}'
-        )
-        ">`
-        :
-        '-'
-        }
-        </td>
+const payerClass=
 
-        ${
-        isEditMode
-        ?
-        `
-        <td>
+exp.payer==='ร้าน'
 
-        <button
-        class="btn btn-danger"
-        onclick="
-        deleteExpense(
-        ${exp.id}
-        )
-        ">
+?
 
-        ลบ
+'badge-payer badge-shop'
 
-        </button>
+:
 
-        </td>
-        `
-        :
-        ''
-        }
+'badge-payer';
 
-        `;
+tr.innerHTML=
+`
+<td>
 
-        tbody.appendChild(tr);
+${new Date(
+exp.date
+).toLocaleDateString(
+'th-TH'
+)}
 
-    });
+</td>
 
-    if(
-        expenses.length===0
-    ){
+<td>
 
-        tbody.innerHTML=
-        `
-        <tr>
+${exp.title}
 
-        <td
-        colspan="7"
-        style="
-        text-align:center;
-        padding:25px;
-        ">
+</td>
 
-        ยังไม่มีรายการ
+<td>
 
-        </td>
+<span
+class=
+"${payerClass}"
+>
 
-        </tr>
-        `;
+${exp.payer}
 
-    }
+</span>
+
+</td>
+
+<td>
+
+${exp.amount
+.toLocaleString(
+'th-TH',
+{
+minimumFractionDigits:2
+}
+)}
+
+</td>
+
+<td>
+
+${exp.slip
+
+?
+
+`<img
+src=
+"${exp.slip}"
+class=
+"img-preview"
+onclick=
+"viewImage(
+'${exp.slip}'
+)">`
+
+:'-'
+
+}
+
+</td>
+
+<td>
+
+${exp.receipt
+
+?
+
+`<img
+src=
+"${exp.receipt}"
+class=
+"img-preview"
+onclick=
+"viewImage(
+'${exp.receipt}'
+)">`
+
+:'-'
+
+}
+
+</td>
+
+<td
+style=
+"display:
+${isEditMode
+?
+'table-cell'
+:
+'none'
+};
+">
+
+<button
+
+class=
+"btn btn-danger"
+
+style=
+"display:inline-block"
+
+onclick=
+"deleteExpense(
+${exp.id}
+)"
+
+>
+
+ลบ
+
+</button>
+
+</td>
+`;
+
+tbody.appendChild(
+tr
+);
+
+});
+
+if(
+expenses.length===0
+){
+
+tbody.innerHTML=
+`
+<tr>
+
+<td
+colspan="7"
+style=
+"text-align:center;
+padding:30px;">
+
+ยังไม่มีรายการ
+
+</td>
+
+</tr>
+`;
+
+}
 
 }
 
 function renderAll(){
 
-    renderSummary();
+renderSummary();
 
-    renderTable();
+renderTable();
 
 }
 
 updatePayerDropdown();
 
 renderAll();
+
 </script>
 
 </body>
