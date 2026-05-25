@@ -136,7 +136,7 @@
     <div class="web-header">
         <div class="web-header-text">
             <h1>บันทึกรายจ่าย</h1>
-            <p>โหมดปกติไว้สำหรับดูยอดเงิน หากต้องการลงบันทึกหรือลบข้อมูล ให้เปิด "โหมดแก้ไข" น้า</p>
+            <p>หากต้องการลงบันทึกหรือลบข้อมูล ให้เปิด "โหมดแก้ไข"</p>
         </div>
         <button id="edit-toggle-btn" class="btn-toggle-edit" onclick="toggleEditMode()">⚙️ เปิดโหมดแก้ไข</button>
     </div>
@@ -157,9 +157,9 @@
 
     <div class="main-layout edit-mode-section" id="edit-widgets">
         <div class="section">
-            <h2>👤 จัดการรายชื่อคนจ่าย (<span id="payer-count">0</span>/20)</h2>
+            <h2>👤 เพิ่มรายชื่อคนจ่าย (<span id="payer-count">0</span>/20)</h2>
             <div class="form-group">
-                <label>เพิ่มสมาชิกใหม่ (สูงสุด 20 คน)</label>
+                <label>เพิ่มสมาชิกใหม่ได้เลย!</label>
                 <div class="name-manager">
                     <input type="text" id="new-name" placeholder="ใส่ชื่อ เช่น คนสวย">
                     <button class="btn" onclick="addPayerName()">✨ เพิ่มชื่อ</button>
@@ -200,7 +200,7 @@
                         <input type="file" id="exp-receipt" accept="image/*">
                     </div>
                 </div>
-                <button type="submit" class="btn" id="btn-submit-expense">🎈 บันทึกรายการ</button>
+                <button type="submit" class="btn" id="btn-submit-expense">บันทึกรายการ</button>
             </form>
         </div>
     </div>
@@ -212,11 +212,11 @@
                 <thead>
                     <tr>
                         <th style="width: 15%;">📅 วันที่</th>
-                        <th style="width: 25%;">✏️ รายการ</th>
-                        <th style="width: 15%;">🙋 คนจ่าย</th>
-                        <th style="width: 15%;">💵 ยอดเงิน</th>
-                        <th style="width: 10%;">📸 สลิป</th>
-                        <th style="width: 10%;">🧾 ใบเสร็จ</th>
+                        <th style="width: 25%;">รายการ</th>
+                        <th style="width: 15%;">คนจ่าย</th>
+                        <th style="width: 15%;">ยอดเงิน</th>
+                        <th style="width: 10%;">สลิป</th>
+                        <th style="width: 10%;">ใบเสร็จ</th>
                         <th id="th-manage" style="width: 10%;">⚙️ จัดการ</th>
                     </tr>
                 </thead>
@@ -290,7 +290,7 @@
     function addPayerName() {
         const input = document.getElementById('new-name'); const name = input.value.trim();
         if (!name) { alert('กรอกชื่อก่อนน้า 🍊'); return; }
-        if (payers.length >= 20) { alert('รายชื่อสมาชิกเต็มแล้วค่ะน้า! (สูงสุด 20 คน)'); return; }
+        if (payers.length >= 20) { alert('รายชื่อสมาชิกเต็มแล้วน้า! (สูงสุด 20 คน)'); return; }
         if (name === 'ร้าน' || payers.includes(name)) { alert('ชื่อนี้มีอยู่ในระบบแล้วค่ะ'); return; }
         payers.push(name);
         localStorage.setItem('payers_cute', JSON.stringify(payers));
