@@ -220,6 +220,59 @@
             background: rgba(43, 30, 29, 0.85); backdrop-filter: blur(5px); justify-content: center; align-items: center;
         }
         .modal img { max-width: 85%; max-height: 85%; border-radius: 16px; border: 4px solid white; }
+        .need-select{
+
+animation:
+blink 1s infinite;
+
+border:
+3px solid #ff4d4f
+!important;
+
+}
+
+@keyframes blink{
+
+0%{
+
+box-shadow:
+0 0 0 0
+rgba(
+255,
+77,
+79,
+0.7
+);
+
+}
+
+70%{
+
+box-shadow:
+0 0 0 12px
+rgba(
+255,
+77,
+79,
+0
+);
+
+}
+
+100%{
+
+box-shadow:
+0 0 0 0
+rgba(
+255,
+77,
+79,
+0
+);
+
+}
+
+}
     </style>
 </head>
 <body>
@@ -269,9 +322,28 @@
                     </div>
                     <div class="form-group">
                         <label>🙋 ใครเป็นคนจ่าย?</label>
-                        <select id="exp-payer" required>
-                            <option value="ร้าน">ร้านจ่าย</option>
-                        </select>
+                        <select
+id="exp-payer"
+required
+>
+
+<option
+value=""
+selected
+disabled
+>
+
+-- เลือกคนจ่าย --
+
+</option>
+
+<option value="ร้าน">
+
+ร้านจ่าย
+
+</option>
+
+</select>
                     </div>
                 </div>
 
@@ -593,16 +665,148 @@ return;
 
 }
 
+const img=
+new Image();
+
 const reader=
 new FileReader();
 
-reader.onload=
-()=>resolve(
-reader.result
+reader.onload=e=>{
+
+img.src=
+e.target.result;
+
+};
+
+img.onload=()=>{
+
+const canvas=
+document.createElement(
+'canvas'
 );
+
+let width=
+img.width;
+
+let height=
+img.height;
+
+const MAX=900;
+
+if(
+width>height
+&&
+width>MAX
+){
+
+height=
+height*
+(MAX/width);
+
+width=
+MAX;
+
+}
+else if(
+height>MAX
+){
+
+width=
+width*
+(MAX/height);
+
+height=
+MAX;
+
+}
+
+canvas.width=
+width;
+
+canvas.height=
+height;
+
+const ctx=
+canvas.getContext(
+'2d'
+);
+
+ctx.drawImage(
+
+img,
+
+0,
+
+0,
+
+width,
+
+height
+
+);
+
+resolve(
+
+canvas.toDataURL(
+
+'image/jpeg',
+
+0.65
+
+)
+
+);
+
+};
 
 reader.readAsDataURL(
 file
+);
+
+});
+
+}
+
+function updatePayerDropdown(){
+
+const select=
+document.getElementById(
+'exp-payer'
+);
+
+select.innerHTML=
+`
+<option
+value=""
+disabled
+selected>
+
+-- เลือกคนจ่าย --
+
+</option>
+
+<option value="ร้าน">
+
+ร้านจ่าย
+
+</option>
+`;
+
+payers.forEach(name=>{
+
+const op=
+document.createElement(
+'option'
+);
+
+op.value=
+name;
+
+op.textContent=
+name;
+
+select.appendChild(
+op
 );
 
 });
@@ -616,6 +820,33 @@ e.preventDefault();
 const form=
 document.getElementById(
 'expense-form'
+);
+
+const payer=
+document.getElementById(
+'exp-payer'
+);
+
+if(
+!payer.value
+){
+
+payer.classList.add(
+'need-select'
+);
+
+payer.focus();
+
+showMsg(
+'เลือกคนจ่ายก่อน ⚠️'
+);
+
+return;
+
+}
+
+payer.classList.remove(
+'need-select'
 );
 
 const title=
@@ -650,7 +881,6 @@ showMsg(
 'กำลังบันทึก...'
 );
 
-// เก็บไฟล์ไว้ก่อน
 const slipFile=
 document.getElementById(
 'exp-slip'
@@ -674,9 +904,7 @@ document.getElementById(
 ).value,
 
 payer:
-document.getElementById(
-'exp-payer'
-).value,
+payer.value,
 
 title,
 
@@ -688,12 +916,10 @@ receipt:null
 
 });
 
-// ขึ้นตารางทันที
 saveStorage();
 
 renderAll();
 
-// ล้างฟอร์มหลังขึ้นตาราง
 form.reset();
 
 setTodayDate();
@@ -704,7 +930,6 @@ showMsg(
 'บันทึกแล้ว ✅'
 );
 
-// อ่านรูปทีหลัง
 const slip=
 await processFile(
 slipFile
@@ -735,409 +960,6 @@ renderAll();
 }
 
 }
-
-function deleteExpense(id){
-
-if(
-!confirm(
-'ลบรายการนี้ ?'
-)
-)return;
-
-expenses=
-expenses.filter(
-item=>
-item.id!==id
-);
-
-saveStorage();
-
-renderAll();
-
-showMsg(
-'ลบแล้ว 🗑️'
-);
-
-}
-
-function renderSummary(){
-
-let grand=0;
-let shop=0;
-
-const person={};
-
-payers.forEach(
-p=>
-person[p]=0
-);
-
-expenses.forEach(exp=>{
-
-grand+=exp.amount;
-
-if(
-exp.payer==='ร้าน'
-){
-
-shop+=
-exp.amount;
-
-}else{
-
-if(
-person[
-exp.payer
-]
-===undefined
-){
-
-person[
-exp.payer
-]=0;
-
-}
-
-person[
-exp.payer
-]+=exp.amount;
-
-}
-
-});
-
-document.getElementById(
-'grand-total'
-).innerHTML=
-
-`${grand.toLocaleString(
-'th-TH',
-{
-minimumFractionDigits:2
-}
-)}
-
-<span class="currency">
-บาท
-</span>`;
-
-document.getElementById(
-'shop-total'
-).innerHTML=
-
-`${shop.toLocaleString(
-'th-TH',
-{
-minimumFractionDigits:2
-}
-)}
-
-<span class="currency">
-บาท
-</span>`;
-
-const box=
-document.getElementById(
-'dynamic-person-boxes'
-);
-
-box.innerHTML='';
-
-Object.keys(
-person
-).forEach(name=>{
-
-const card=
-document.createElement(
-'div'
-);
-
-card.className=
-'card person';
-
-card.innerHTML=
-`
-<h3>
-
-<span>
-
-👤 ${name}
-
-</span>
-
-${
-isEditMode
-?
-
-`<button
-class=
-"btn-del-payer"
-style=
-"display:flex"
-onclick=
-"deletePayer(
-'${name}'
-)">
-✕
-</button>`
-
-:''
-
-}
-
-</h3>
-
-<div class=
-"amount">
-
-${person[name]
-.toLocaleString(
-'th-TH',
-{
-minimumFractionDigits:2
-}
-)}
-
-<span class=
-"currency">
-
-บาท
-
-</span>
-
-</div>
-`;
-
-box.appendChild(
-card
-);
-
-});
-
-}
-
-function viewImage(img){
-
-if(!img)return;
-
-document.getElementById(
-'modal-img'
-).src=img;
-
-document.getElementById(
-'image-modal'
-).style.display=
-'flex';
-
-}
-
-function renderTable(){
-
-const tbody=
-document.getElementById(
-'expense-table-body'
-);
-
-const th=
-document.getElementById(
-'th-manage'
-);
-
-tbody.innerHTML='';
-
-th.style.display=
-
-isEditMode
-
-?
-
-'table-cell'
-
-:
-
-'none';
-
-expenses.forEach(exp=>{
-
-const tr=
-document.createElement(
-'tr'
-);
-
-const payerClass=
-
-exp.payer==='ร้าน'
-
-?
-
-'badge-payer badge-shop'
-
-:
-
-'badge-payer';
-
-tr.innerHTML=
-`
-<td>
-
-${new Date(
-exp.date
-).toLocaleDateString(
-'th-TH'
-)}
-
-</td>
-
-<td>
-
-${exp.title}
-
-</td>
-
-<td>
-
-<span
-class=
-"${payerClass}"
->
-
-${exp.payer}
-
-</span>
-
-</td>
-
-<td>
-
-${exp.amount
-.toLocaleString(
-'th-TH',
-{
-minimumFractionDigits:2
-}
-)}
-
-</td>
-
-<td>
-
-${exp.slip
-
-?
-
-`<img
-src=
-"${exp.slip}"
-class=
-"img-preview"
-onclick=
-"viewImage(
-'${exp.slip}'
-)">`
-
-:'-'
-
-}
-
-</td>
-
-<td>
-
-${exp.receipt
-
-?
-
-`<img
-src=
-"${exp.receipt}"
-class=
-"img-preview"
-onclick=
-"viewImage(
-'${exp.receipt}'
-)">`
-
-:'-'
-
-}
-
-</td>
-
-<td
-style=
-"display:
-${isEditMode
-?
-'table-cell'
-:
-'none'
-};
-">
-
-<button
-
-class=
-"btn btn-danger"
-
-style=
-"display:inline-block"
-
-onclick=
-"deleteExpense(
-${exp.id}
-)"
-
->
-
-ลบ
-
-</button>
-
-</td>
-`;
-
-tbody.appendChild(
-tr
-);
-
-});
-
-if(
-expenses.length===0
-){
-
-tbody.innerHTML=
-`
-<tr>
-
-<td
-colspan="7"
-style=
-"text-align:center;
-padding:30px;">
-
-ยังไม่มีรายการ
-
-</td>
-
-</tr>
-`;
-
-}
-
-}
-
-function renderAll(){
-
-renderSummary();
-
-renderTable();
-
-}
-
-updatePayerDropdown();
-
-renderAll();
 
 </script>
 
