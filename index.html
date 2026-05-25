@@ -327,241 +327,643 @@
 </div>
 
 <script>
-    let payers = JSON.parse(localStorage.getItem('payers_cute')) || [];
-    let expenses = JSON.parse(localStorage.getItem('expenses_cute')) || [];
-    let isEditMode = false;
+let payers = JSON.parse(localStorage.getItem('payers_cute')) || [];
+let expenses = JSON.parse(localStorage.getItem('expenses_cute')) || [];
+let isEditMode = false;
 
+function setTodayDate() {
     document.getElementById('exp-date').valueAsDate = new Date();
+}
 
-    function toggleEditMode() {
-        isEditMode = !isEditMode;
-        const btn = document.getElementById('edit-toggle-btn');
-        const editWidgets = document.getElementById('edit-widgets');
+setTodayDate();
 
-        if(isEditMode) {
-            btn.textContent = '🔒 ปิดโหมดแก้ไข';
-            btn.classList.add('active');
-            editWidgets.style.display = 'grid'; 
-        } else {
-            btn.textContent = '⚙️ เปิดโหมดแก้ไข';
-            btn.classList.remove('active');
-            editWidgets.style.display = 'none'; 
-        }
-        
-        renderAll(); 
+function saveStorage() {
+    localStorage.setItem(
+        'payers_cute',
+        JSON.stringify(payers)
+    );
+
+    localStorage.setItem(
+        'expenses_cute',
+        JSON.stringify(expenses)
+    );
+}
+
+function toggleEditMode() {
+
+    isEditMode = !isEditMode;
+
+    const btn =
+        document.getElementById(
+            'edit-toggle-btn'
+        );
+
+    const editWidgets =
+        document.getElementById(
+            'edit-widgets'
+        );
+
+    if (isEditMode) {
+
+        btn.textContent =
+            '🔒 ปิดโหมดแก้ไข';
+
+        btn.classList.add(
+            'active'
+        );
+
+        editWidgets.style.display =
+            'grid';
+
+    } else {
+
+        btn.textContent =
+            '⚙️ เปิดโหมดแก้ไข';
+
+        btn.classList.remove(
+            'active'
+        );
+
+        editWidgets.style.display =
+            'none';
     }
 
-    function addPayerName() {
-        const nameInput = document.getElementById('new-name');
-        const name = nameInput.value.trim();
-        
-        if(!name) return alert('กรุณาพิมพ์ชื่อด้วยนะค้าบ 🍊');
-        if(name === 'ร้าน' || payers.includes(name)) return alert('ชื่อนี้มีอยู่ในระบบแล้วน้า');
-
-        payers.push(name);
-        localStorage.setItem('payers_cute', JSON.stringify(payers));
-        nameInput.value = '';
-        
-        updatePayerDropdown();
-        renderAll();
-        
-        alert(`เพิ่มชื่อ "${name}" เรียบร้อยแล้วค่ะ!`);
-    }
-
-    function deletePayer(name) {
-        if(confirm(`คุณแน่ใจใช่ไหมว่าจะลบรายชื่อของ "${name}" ออกจากระบบ? \n\n*หมายเหตุ: ยอดเงินที่เคยบันทึกไว้ในชื่อนี้จะยังอยู่ในตารางประวัติ แต่กล่องสรุปยอดของคนนี้จะถูกลบออกไปครับ`)) {
-            payers = payers.filter(p => p !== name);
-            localStorage.setItem('payers_cute', JSON.stringify(payers));
-            
-            updatePayerDropdown();
-            renderAll();
-            
-            alert(`ลบรายชื่อ "${name}" เรียบร้อยแล้วค่ะ!`);
-        }
-    }
-
-    function updatePayerDropdown() {
-        const select = document.getElementById('exp-payer');
-        const currentSelected = select.value || 'ร้าน';
-        
-        select.innerHTML = '<option value="ร้าน">ร้านจ่าย</option>';
-        payers.forEach(name => {
-            const option = document.createElement('option');
-            option.value = name;
-            option.textContent = name;
-            select.appendChild(option);
-        });
-        select.value = currentSelected;
-    }
-
-    function processFile(file) {
-        return new Promise((resolve) => {
-            if (!file) resolve(null);
-            const reader = new FileReader();
-            reader.onloadend = () => resolve(reader.result);
-            reader.readAsDataURL(file);
-        });
-    }
-
-    async function saveExpense(e) {
-        e.preventDefault();
-        
-        const date = document.getElementById('exp-date').value;
-        const payer = document.getElementById('exp-payer').value;
-        const title = document.getElementById('exp-title').value.trim();
-        const amount = parseFloat(document.getElementById('exp-amount').value);
-        
-        if(!title || isNaN(amount) || amount <= 0) {
-            return alert('กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้องน้า 🍊');
-        }
-
-        const slipFile = document.getElementById('exp-slip').files[0];
-        const receiptFile = document.getElementById('exp-receipt').files[0];
-
-        const slipBase64 = await processFile(slipFile);
-        const receiptBase64 = await processFile(receiptFile);
-
-        const newExpense = {
-            id: Date.now(),
-            date,
-            payer,
-            title,
-            amount,
-            slip: slipBase64,
-            receipt: receiptBase64
-        };
-
-        expenses.push(newExpense);
-        localStorage.setItem('expenses_cute', JSON.stringify(expenses));
-        
-        // ล้างข้อมูลในช่องกรอกทันที
-        document.getElementById('exp-title').value = '';
-        document.getElementById('exp-amount').value = '';
-        document.getElementById('exp-slip').value = '';
-        document.getElementById('exp-receipt').value = '';
-
-        // บังคับอัปเดตหน้าจอทันทีแบบ Real-time (ไม่ต้องปิดโหมดแก้ไขก็เห็น)
-        renderAll();
-        
-        setTimeout(() => {
-            alert('บันทึกเรียบร้อยแล้วค่ะ!');
-        }, 50);
-    }
-
-    function deleteExpense(id) {
-        if(confirm('คุณแน่ใจน้าว่าจะลบรายการจ่ายชิ้นนี้? 🥺')) {
-            expenses = expenses.filter(exp => exp.id !== id);
-            localStorage.setItem('expenses_cute', JSON.stringify(expenses));
-            
-            // อัปเดตหน้าจอทันทีแบบ Real-time ทันทีที่กดลบ
-            renderAll();
-            
-            setTimeout(() => {
-                alert('ลบรายการเรียบร้อยแล้วค่ะ!');
-            }, 50);
-        }
-    }
-
-    function renderSummary() {
-        let grandTotal = 0;
-        let shopTotal = 0;
-        let personTotals = {};
-
-        payers.forEach(name => personTotals[name] = 0);
-
-        expenses.forEach(exp => {
-            grandTotal += exp.amount;
-            if (exp.payer === 'ร้าน') {
-                shopTotal += exp.amount;
-            } else {
-                if (personTotals[exp.payer] === undefined) personTotals[exp.payer] = 0;
-                personTotals[exp.payer] += exp.amount;
-            }
-        });
-
-        document.getElementById('grand-total').innerHTML = grandTotal.toLocaleString('th-TH', {minimumFractionDigits: 2}) + '<span class="currency"> บาท</span>';
-        document.getElementById('shop-total').innerHTML = shopTotal.toLocaleString('th-TH', {minimumFractionDigits: 2}) + '<span class="currency"> บาท</span>';
-
-        const dynamicContainer = document.getElementById('dynamic-person-boxes');
-        dynamicContainer.innerHTML = '';
-
-        Object.keys(personTotals).forEach(name => {
-            const card = document.createElement('div');
-            card.className = 'card person';
-            
-            const delBtnDisplay = isEditMode ? 'flex' : 'none';
-            const delBtnHtml = `<button class="btn-del-payer" style="display:${delBtnDisplay};" onclick="deletePayer('${name}')">✕</button>`;
-            
-            card.innerHTML = `
-                <h3>
-                    <span>👤 ยอดรวม: ${name}</span>
-                    ${delBtnHtml}
-                </h3>
-                <div class="amount">${personTotals[name].toLocaleString('th-TH', {minimumFractionDigits: 2})}<span class="currency"> บาท</span></div>
-            `;
-            dynamicContainer.appendChild(card);
-        });
-    }
-
-    function viewImage(base64Data) {
-        if(!base64Data) return;
-        const modal = document.getElementById('image-modal');
-        const modalImg = document.getElementById('modal-img');
-        modal.style.display = 'flex';
-        modalImg.src = base64Data;
-    }
-
-    function renderTable() {
-        const tbody = document.getElementById('expense-table-body');
-        const thManage = document.getElementById('th-manage');
-        tbody.innerHTML = '';
-
-        // ควบคุมการแสดงผลของหัวตาราง "จัดการ" ตามโหมดแก้ไขปัจจุบัน
-        if(isEditMode) {
-            thManage.style.display = 'table-cell';
-        } else {
-            thManage.style.display = 'none';
-        }
-
-        const sortedExpenses = [...expenses].sort((a,b) => new Date(b.date) - new Date(a.date));
-
-        sortedExpenses.forEach(exp => {
-            const tr = document.createElement('tr');
-            const dateObj = new Date(exp.date);
-            const formattedDate = dateObj.toLocaleDateString('th-TH', {day: '2-digit', month: 'short', year: 'numeric'});
-
-            const slipHtml = exp.slip ? `<img src="${exp.slip}" class="img-preview" onclick="viewImage('${exp.slip}')">` : '<span class="no-img">ไม่มี</span>';
-            const receiptHtml = exp.receipt ? `<img src="${exp.receipt}" class="img-preview" onclick="viewImage('${exp.receipt}')">` : '<span class="no-img">ไม่มี</span>';
-            const payerBadgeClass = exp.payer === 'ร้าน' ? 'badge-payer badge-shop' : 'badge-payer';
-
-            // แสดงหรือซ่อนปุ่มลบตามสถานะโหมดแก้ไขทันที
-            const tdManageHtml = isEditMode ? `<td><button class="btn btn-danger" style="display:inline-block; padding: 5px 12px; font-size: 0.85rem; border-radius: 10px;" onclick="deleteExpense(${exp.id})">ลบ</button></td>` : '<td style="display:none;"></td>';
-
-            tr.innerHTML = `
-                <td>${formattedDate}</td>
-                <td><strong>${exp.title}</strong></td>
-                <td><span class="${payerBadgeClass}">${exp.payer}</span></td>
-                <td style="font-weight: bold; color: #d95d26;">${exp.amount.toLocaleString('th-TH', {minimumFractionDigits: 2})}</td>
-                <td>${slipHtml}</td>
-                <td>${receiptHtml}</td>
-                ${tdManageHtml}
-            `;
-            tbody.appendChild(tr);
-        });
-
-        if(sortedExpenses.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">ยังไม่มีข้อมูลบันทึกรายจ่ายเลยน้า มาร่วมเริ่มบันทึกกันเลย! 🍊</td></tr>`;
-        }
-    }
-
-    function renderAll() {
-        renderSummary();
-        renderTable();
-    }
-
-    // เริ่มต้นระบบครั้งแรก
-    updatePayerDropdown();
     renderAll();
+}
+
+function addPayerName() {
+
+    const input =
+        document.getElementById(
+            'new-name'
+        );
+
+    const name =
+        input.value.trim();
+
+    if (!name) {
+
+        alert(
+            'กรุณาพิมพ์ชื่อด้วยนะ 🍊'
+        );
+
+        return;
+    }
+
+    if (
+        name === 'ร้าน' ||
+        payers.includes(name)
+    ) {
+
+        alert(
+            'ชื่อนี้มีอยู่แล้ว'
+        );
+
+        return;
+    }
+
+    payers.push(name);
+
+    saveStorage();
+
+    input.value = '';
+
+    updatePayerDropdown();
+
+    renderAll();
+}
+
+function deletePayer(name){
+
+    if(
+        !confirm(
+            `ลบ "${name}" ใช่ไหม`
+        )
+    ) return;
+
+    payers =
+        payers.filter(
+            p => p !== name
+        );
+
+    saveStorage();
+
+    updatePayerDropdown();
+
+    renderAll();
+}
+
+function updatePayerDropdown(){
+
+    const select =
+        document.getElementById(
+            'exp-payer'
+        );
+
+    const current =
+        select.value || 'ร้าน';
+
+    select.innerHTML =
+        `<option value="ร้าน">
+            ร้านจ่าย
+        </option>`;
+
+    payers.forEach(name=>{
+
+        const op =
+            document.createElement(
+                'option'
+            );
+
+        op.value = name;
+        op.textContent = name;
+
+        select.appendChild(op);
+
+    });
+
+    select.value =
+        payers.includes(current)
+        || current==='ร้าน'
+        ? current
+        : 'ร้าน';
+}
+
+function processFile(file){
+
+    return new Promise(resolve=>{
+
+        if(!file){
+
+            resolve(null);
+            return;
+        }
+
+        const reader =
+            new FileReader();
+
+        reader.onload =
+            ()=>resolve(
+                reader.result
+            );
+
+        reader.readAsDataURL(
+            file
+        );
+
+    });
+
+}
+
+async function saveExpense(e){
+
+    e.preventDefault();
+
+    const form =
+        document.getElementById(
+            'expense-form'
+        );
+
+    const date =
+        document.getElementById(
+            'exp-date'
+        ).value;
+
+    const payer =
+        document.getElementById(
+            'exp-payer'
+        ).value;
+
+    const title =
+        document.getElementById(
+            'exp-title'
+        )
+        .value
+        .trim();
+
+    const amount =
+        parseFloat(
+            document.getElementById(
+                'exp-amount'
+            ).value
+        );
+
+    if(
+        !title ||
+        isNaN(amount) ||
+        amount<=0
+    ){
+
+        alert(
+            'กรอกข้อมูลให้ครบ'
+        );
+
+        return;
+    }
+
+    const slip =
+        await processFile(
+            document
+            .getElementById(
+                'exp-slip'
+            )
+            .files[0]
+        );
+
+    const receipt =
+        await processFile(
+            document
+            .getElementById(
+                'exp-receipt'
+            )
+            .files[0]
+        );
+
+    expenses.unshift({
+
+        id:
+            Date.now()
+            +Math.random(),
+
+        date,
+        payer,
+        title,
+        amount,
+
+        slip,
+
+        receipt
+
+    });
+
+    saveStorage();
+
+    // รีเฟรชทันที
+    renderAll();
+
+    // เคลียร์ฟอร์มทันที
+    form.reset();
+
+    setTodayDate();
+
+    updatePayerDropdown();
+}
+
+function deleteExpense(id){
+
+    if(
+        !confirm(
+            'ลบรายการนี้ใช่ไหม'
+        )
+    ) return;
+
+    expenses =
+        expenses.filter(
+            item =>
+            item.id!==id
+        );
+
+    saveStorage();
+
+    // ลบปุ๊บหายปั๊บ
+    renderAll();
+}
+
+function renderSummary(){
+
+    let grand=0;
+    let shop=0;
+
+    const person={};
+
+    payers.forEach(
+        p=>person[p]=0
+    );
+
+    expenses.forEach(exp=>{
+
+        grand+=exp.amount;
+
+        if(
+            exp.payer==='ร้าน'
+        ){
+
+            shop+=exp.amount;
+
+        }else{
+
+            if(
+                person[
+                    exp.payer
+                ]===undefined
+            ){
+
+                person[
+                    exp.payer
+                ]=0;
+
+            }
+
+            person[
+                exp.payer
+            ]+=exp.amount;
+        }
+
+    });
+
+    document
+    .getElementById(
+        'grand-total'
+    )
+    .innerHTML=
+        `${grand.toLocaleString(
+            'th-TH',
+            {
+                minimumFractionDigits:2
+            }
+        )}
+        <span class="currency">
+        บาท
+        </span>`;
+
+    document
+    .getElementById(
+        'shop-total'
+    )
+    .innerHTML=
+        `${shop.toLocaleString(
+            'th-TH',
+            {
+                minimumFractionDigits:2
+            }
+        )}
+        <span class="currency">
+        บาท
+        </span>`;
+
+    const box=
+        document.getElementById(
+            'dynamic-person-boxes'
+        );
+
+    box.innerHTML='';
+
+    Object.keys(person)
+    .forEach(name=>{
+
+        const card=
+            document.createElement(
+                'div'
+            );
+
+        card.className=
+            'card person';
+
+        card.innerHTML=
+        `
+        <h3>
+
+        <span>
+        👤 ${name}
+        </span>
+
+        ${
+        isEditMode
+        ?
+        `<button
+        class="btn-del-payer"
+        style="display:flex"
+        onclick="
+        deletePayer(
+        '${name}'
+        )">
+        ✕
+        </button>`
+        :
+        ''
+        }
+
+        </h3>
+
+        <div class="amount">
+
+        ${
+        person[name]
+        .toLocaleString(
+        'th-TH',
+        {
+        minimumFractionDigits:2
+        }
+        )
+        }
+
+        <span class="currency">
+        บาท
+        </span>
+
+        </div>
+        `;
+
+        box.appendChild(card);
+
+    });
+
+}
+
+function viewImage(img){
+
+    if(!img)return;
+
+    document
+    .getElementById(
+        'modal-img'
+    )
+    .src=img;
+
+    document
+    .getElementById(
+        'image-modal'
+    )
+    .style.display='flex';
+}
+
+function renderTable(){
+
+    const tbody=
+        document.getElementById(
+            'expense-table-body'
+        );
+
+    const th=
+        document.getElementById(
+            'th-manage'
+        );
+
+    th.style.display=
+        isEditMode
+        ?'table-cell'
+        :'none';
+
+    tbody.innerHTML='';
+
+    expenses.forEach(exp=>{
+
+        const tr=
+            document.createElement(
+                'tr'
+            );
+
+        const payerClass=
+        exp.payer==='ร้าน'
+        ?
+        'badge-payer badge-shop'
+        :
+        'badge-payer';
+
+        tr.innerHTML=
+        `
+        <td>
+        ${
+        new Date(
+        exp.date
+        )
+        .toLocaleDateString(
+        'th-TH'
+        )
+        }
+        </td>
+
+        <td>
+        ${exp.title}
+        </td>
+
+        <td>
+
+        <span
+        class="${payerClass}">
+        ${exp.payer}
+        </span>
+
+        </td>
+
+        <td>
+
+        ${exp.amount
+        .toLocaleString(
+        'th-TH',
+        {
+        minimumFractionDigits:2
+        }
+        )}
+
+        </td>
+
+        <td>
+
+        ${
+        exp.slip
+        ?
+        `<img
+        src="${exp.slip}"
+        class="img-preview"
+        onclick="
+        viewImage(
+        '${exp.slip}'
+        )">`
+        :
+        '-'
+        }
+
+        </td>
+
+        <td>
+
+        ${
+        exp.receipt
+        ?
+        `<img
+        src="${exp.receipt}"
+        class="img-preview"
+        onclick="
+        viewImage(
+        '${exp.receipt}'
+        )">`
+        :
+        '-'
+        }
+
+        </td>
+
+        ${
+        isEditMode
+        ?
+        `
+        <td>
+
+        <button
+        class="btn btn-danger"
+        style="
+        display:inline-block;
+        padding:6px 12px;
+        "
+        onclick="
+        deleteExpense(
+        ${exp.id}
+        )
+        ">
+
+        ลบ
+
+        </button>
+
+        </td>
+        `
+        :
+        ''
+        }
+
+        `;
+
+        tbody.appendChild(tr);
+
+    });
+
+    if(
+        expenses.length===0
+    ){
+
+        tbody.innerHTML=
+        `
+        <tr>
+
+        <td
+        colspan="7"
+        style="
+        text-align:center;
+        padding:30px;
+        ">
+
+        ยังไม่มีรายการ
+
+        </td>
+
+        </tr>
+        `;
+    }
+
+}
+
+function renderAll(){
+
+    renderSummary();
+
+    renderTable();
+
+}
+
+updatePayerDropdown();
+
+renderAll();
 </script>
 
 </body>
