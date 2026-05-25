@@ -65,6 +65,9 @@
             transition: all 0.2s;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
+        .btn-toggle-edit:active {
+            transform: scale(0.95);
+        }
         .btn-toggle-edit.active {
             background-color: var(--primary);
             color: white;
@@ -114,6 +117,9 @@
             align-items: center;
             justify-content: center;
         }
+        .btn-del-payer:active {
+            transform: scale(0.85);
+        }
 
         /* Layout Columns */
         .main-layout {
@@ -157,10 +163,21 @@
             border-radius: 14px; cursor: pointer; font-size: 1rem; font-weight: bold;
             display: inline-flex; align-items: center; justify-content: center; gap: 6px;
             box-shadow: 0 4px 10px rgba(255, 122, 60, 0.2); width: 100%;
+            transition: background 0.2s, transform 0.1s;
         }
         .btn:hover { background: var(--primary-hover); }
+        /* เอฟเฟกต์เวลาปุ่มโดนกด */
+        .btn:active {
+            transform: scale(0.96); 
+            box-shadow: 0 2px 5px rgba(255, 122, 60, 0.2);
+        }
+        
         .btn-danger { background: #ff6b6b; box-shadow: 0 4px 10px rgba(255, 107, 107, 0.2); width: auto; display: none;}
         .btn-danger:hover { background: #fa5252; }
+        .btn-danger:active {
+            transform: scale(0.92);
+            box-shadow: 0 2px 5px rgba(255, 107, 107, 0.2);
+        }
 
         .name-manager { display: flex; gap: 10px; }
         .name-manager input { flex: 1; }
@@ -195,7 +212,7 @@
     <div class="web-header">
         <div class="web-header-text">
             <h1>บันทึกรายจ่าย</h1>
-            <p>โหมดปกติไว้สำหรับดูยอดเงิน หากต้องการลงบันทึกหรือลบข้อมูล ให้เปิด "โหมดแก้ไข" น้า</p>
+            <p>โหมดปกติไว้สำหรับดูยอดเงิน หากต้องการลงบันทึกหรือลบข้อมูล ให้เปิด "โหมดแก้ไข"</p>
         </div>
         <button id="edit-toggle-btn" class="btn-toggle-edit" onclick="toggleEditMode()">
             ⚙️ เปิดโหมดแก้ไข
@@ -262,7 +279,7 @@
                     </div>
                 </div>
 
-                <button type="submit" class="btn">🎈 บันทึกรายการ</button>
+                <button type="submit" class="btn">บันทึกรายการ</button>
             </form>
         </div>
     </div>
@@ -327,14 +344,15 @@
         if(!name) return alert('กรุณาพิมพ์ชื่อด้วยนะค้าบ 🍊');
         if(name === 'ร้าน' || payers.includes(name)) return alert('ชื่อนี้มีอยู่ในระบบแล้วน้า');
 
+        // บันทึกข้อมูลลงอาเรย์และ LocalStorage
         payers.push(name);
         localStorage.setItem('payers_cute', JSON.stringify(payers));
         nameInput.value = '';
         
+        // อัปเดต Dropdown และวาดหน้าจอใหม่ทันทีแบบ Real-time
         updatePayerDropdown();
         renderAll();
         
-        // แจ้งเตือนเมื่อเพิ่มรายชื่อสำเร็จเรียลไทม์
         alert(`เพิ่มชื่อ "${name}" เรียบร้อยแล้วค่ะ!`);
     }
 
@@ -346,7 +364,6 @@
             updatePayerDropdown();
             renderAll();
             
-            // แจ้งเตือนเมื่อลบรายชื่อสำเร็จเรียลไทม์
             alert(`ลบรายชื่อ "${name}" เรียบร้อยแล้วค่ะ!`);
         }
     }
@@ -383,7 +400,7 @@
         const amount = parseFloat(document.getElementById('exp-amount').value);
         
         if(!title || isNaN(amount) || amount <= 0) {
-            return alert('กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้องน้า 🍊');
+            return alert('กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง 🍊');
         }
 
         const slipFile = document.getElementById('exp-slip').files[0];
@@ -402,29 +419,36 @@
             receipt: receiptBase64
         };
 
+        // บันทึกข้อมูลลงอาเรย์และ LocalStorage
         expenses.push(newExpense);
         localStorage.setItem('expenses_cute', JSON.stringify(expenses));
         
+        // ล้างข้อมูลในฟอร์มออก
         document.getElementById('exp-title').value = '';
         document.getElementById('exp-amount').value = '';
         document.getElementById('exp-slip').value = '';
         document.getElementById('exp-receipt').value = '';
 
+        // บังคับวาดหน้าจอใหม่ทันที (Real-time โดยไม่ต้องสลับโหมด)
         renderAll();
         
-        // แจ้งเตือนเมื่อบันทึกรายจ่ายสำเร็จเรียลไทม์
-        alert('บันทึกเรียบร้อยแล้วค่ะ!');
+        // แจ้งเตือนหลังจากหน้าจออัปเดตแล้ว
+        setTimeout(() => {
+            alert('บันทึกเรียบร้อยแล้วค่ะ!');
+        }, 50);
     }
 
     function deleteExpense(id) {
-        if(confirm('คุณแน่ใจน้าว่าจะลบรายการจ่ายชิ้นนี้? 🥺')) {
+        if(confirm('คุณแน่ใจใช่ไหมว่าจะลบรายการจ่ายชิ้นนี้?')) {
             expenses = expenses.filter(exp => exp.id !== id);
             localStorage.setItem('expenses_cute', JSON.stringify(expenses));
             
+            // อัปเดตข้อมูลบนหน้าจอเรียลไทม์ทันที
             renderAll();
             
-            // แจ้งเตือนเมื่อลบรายการรายจ่ายสำเร็จเรียลไทม์
-            alert('ลบรายการเรียบร้อยแล้วค่ะ!');
+            setTimeout(() => {
+                alert('ลบรายการเรียบร้อยแล้วค่ะ!');
+            }, 50);
         }
     }
 
@@ -433,6 +457,7 @@
         let shopTotal = 0;
         let personTotals = {};
 
+        // ล้างกล่องเก่าออกก่อนวาดใหม่
         payers.forEach(name => personTotals[name] = 0);
 
         expenses.forEach(exp => {
@@ -453,11 +478,14 @@
             summaryBoxes.removeChild(summaryBoxes.lastChild);
         }
 
+        // วาดกล่องสรุปยอดรายบุคคล
         Object.keys(personTotals).forEach(name => {
             const card = document.createElement('div');
             card.className = 'card person';
             
-            const delBtnHtml = isEditMode ? `<button class="btn-del-payer" style="display:flex;" onclick="deletePayer('${name}')">✕</button>` : '';
+            // ปุ่มกากบาทลบชื่อ (✕) จะแสดงตามสถานะโหมดแก้ไขในขณะนั้นทันที
+            const delBtnDisplay = isEditMode ? 'flex' : 'none';
+            const delBtnHtml = `<button class="btn-del-payer" style="display:${delBtnDisplay};" onclick="deletePayer('${name}')">✕</button>`;
             
             card.innerHTML = `
                 <h3>
@@ -493,6 +521,7 @@
             const receiptHtml = exp.receipt ? `<img src="${exp.receipt}" class="img-preview" onclick="viewImage('${exp.receipt}')">` : '<span class="no-img">ไม่มี</span>';
             const payerBadgeClass = exp.payer === 'ร้าน' ? 'badge-payer badge-shop' : 'badge-payer';
 
+            // ปุ่มลบในตารางจะขึ้นตามสถานะโหมดแก้ไขทันที
             const tdManageHtml = isEditMode ? `<td><button class="btn btn-danger" style="display:inline-block; padding: 5px 12px; font-size: 0.85rem; border-radius: 10px;" onclick="deleteExpense(${exp.id})">ลบ</button></td>` : '';
 
             tr.innerHTML = `
@@ -518,6 +547,7 @@
         renderTable();
     }
 
+    // เรียกทำงานตอนโหลดหน้าเว็บครั้งแรก
     updatePayerDropdown();
     renderAll();
 </script>
