@@ -113,7 +113,7 @@
             border-radius: 50%;
             font-size: 0.7rem;
             cursor: pointer;
-            display: none; /* ซ่อนไว้ก่อน เปิดเฉพาะตอนโหมดแก้ไข */
+            display: none;
             align-items: center;
             justify-content: center;
         }
@@ -131,7 +131,7 @@
         
         /* Edit Section Container */
         .edit-mode-section {
-            display: none; /* ซ่อนฟอร์มแก้ไขทั้งหมดในตอนแรก */
+            display: none;
         }
 
         .section {
@@ -166,7 +166,6 @@
             transition: background 0.2s, transform 0.1s;
         }
         .btn:hover { background: var(--primary-hover); }
-        /* เอฟเฟกต์เวลาปุ่มโดนกด */
         .btn:active {
             transform: scale(0.96); 
             box-shadow: 0 2px 5px rgba(255, 122, 60, 0.2);
@@ -212,7 +211,7 @@
     <div class="web-header">
         <div class="web-header-text">
             <h1>บันทึกรายจ่าย</h1>
-            <p>โหมดปกติไว้สำหรับดูยอดเงิน หากต้องการลงบันทึกหรือลบข้อมูล ให้เปิด "โหมดแก้ไข"</p>
+            <p>โหมดปกติไว้สำหรับดูยอดเงิน หากต้องการลงบันทึกหรือลบข้อมูล ให้เปิด "โหมดแก้ไข" น้า</p>
         </div>
         <button id="edit-toggle-btn" class="btn-toggle-edit" onclick="toggleEditMode()">
             ⚙️ เปิดโหมดแก้ไข
@@ -228,6 +227,7 @@
             <h3>🏪 ร้านจ่าย</h3>
             <div class="amount" id="shop-total">0.00<span class="currency">บาท</span></div>
         </div>
+        <div id="dynamic-person-boxes" style="display: contents;"></div>
     </div>
 
     <div class="main-layout edit-mode-section" id="edit-widgets">
@@ -279,7 +279,7 @@
                     </div>
                 </div>
 
-                <button type="submit" class="btn">บันทึกรายการ</button>
+                <button type="submit" class="btn" id="btn-submit-expense">🎈 บันทึกรายการ</button>
             </form>
         </div>
     </div>
@@ -344,12 +344,10 @@
         if(!name) return alert('กรุณาพิมพ์ชื่อด้วยนะค้าบ 🍊');
         if(name === 'ร้าน' || payers.includes(name)) return alert('ชื่อนี้มีอยู่ในระบบแล้วน้า');
 
-        // บันทึกข้อมูลลงอาเรย์และ LocalStorage
         payers.push(name);
         localStorage.setItem('payers_cute', JSON.stringify(payers));
         nameInput.value = '';
         
-        // อัปเดต Dropdown และวาดหน้าจอใหม่ทันทีแบบ Real-time
         updatePayerDropdown();
         renderAll();
         
@@ -400,7 +398,7 @@
         const amount = parseFloat(document.getElementById('exp-amount').value);
         
         if(!title || isNaN(amount) || amount <= 0) {
-            return alert('กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง 🍊');
+            return alert('กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้องน้า 🍊');
         }
 
         const slipFile = document.getElementById('exp-slip').files[0];
@@ -419,36 +417,34 @@
             receipt: receiptBase64
         };
 
-        // บันทึกข้อมูลลงอาเรย์และ LocalStorage
         expenses.push(newExpense);
         localStorage.setItem('expenses_cute', JSON.stringify(expenses));
         
-        // ล้างข้อมูลในฟอร์มออก
         document.getElementById('exp-title').value = '';
         document.getElementById('exp-amount').value = '';
         document.getElementById('exp-slip').value = '';
         document.getElementById('exp-receipt').value = '';
 
-        // บังคับวาดหน้าจอใหม่ทันที (Real-time โดยไม่ต้องสลับโหมด)
+        // อัปเดตข้อมูลขึ้นหน้าจอทันทีแบบ Real-time ตั้งแต่อยู่ในโหมดแก้ไข!
         renderAll();
         
-        // แจ้งเตือนหลังจากหน้าจออัปเดตแล้ว
+        // เด้งป๊อปอัพแจ้งเตือนหลังจากตัวเลขเปลี่ยนเรียบร้อย
         setTimeout(() => {
             alert('บันทึกเรียบร้อยแล้วค่ะ!');
-        }, 50);
+        }, 80);
     }
 
     function deleteExpense(id) {
-        if(confirm('คุณแน่ใจใช่ไหมว่าจะลบรายการจ่ายชิ้นนี้?')) {
+        if(confirm('คุณแน่ใจน้าว่าจะลบรายการจ่ายชิ้นนี้? 🥺')) {
             expenses = expenses.filter(exp => exp.id !== id);
             localStorage.setItem('expenses_cute', JSON.stringify(expenses));
             
-            // อัปเดตข้อมูลบนหน้าจอเรียลไทม์ทันที
+            // อัปเดตข้อมูลขึ้นหน้าจอทันทีแบบ Real-time
             renderAll();
             
             setTimeout(() => {
                 alert('ลบรายการเรียบร้อยแล้วค่ะ!');
-            }, 50);
+            }, 80);
         }
     }
 
@@ -457,7 +453,6 @@
         let shopTotal = 0;
         let personTotals = {};
 
-        // ล้างกล่องเก่าออกก่อนวาดใหม่
         payers.forEach(name => personTotals[name] = 0);
 
         expenses.forEach(exp => {
@@ -470,20 +465,18 @@
             }
         });
 
+        // อัปเดตกล่องรวมและกล่องร้าน
         document.getElementById('grand-total').innerHTML = grandTotal.toLocaleString('th-TH', {minimumFractionDigits: 2}) + '<span class="currency"> บาท</span>';
         document.getElementById('shop-total').innerHTML = shopTotal.toLocaleString('th-TH', {minimumFractionDigits: 2}) + '<span class="currency"> บาท</span>';
 
-        const summaryBoxes = document.getElementById('summary-boxes');
-        while (summaryBoxes.children.length > 2) {
-            summaryBoxes.removeChild(summaryBoxes.lastChild);
-        }
+        // วาดกล่องคนจ่ายแบบเรียลไทม์ลงพื้นที่ Dynamic ป้องกันการบล็อกโหมดแก้ไข
+        const dynamicContainer = document.getElementById('dynamic-person-boxes');
+        dynamicContainer.innerHTML = '';
 
-        // วาดกล่องสรุปยอดรายบุคคล
         Object.keys(personTotals).forEach(name => {
             const card = document.createElement('div');
             card.className = 'card person';
             
-            // ปุ่มกากบาทลบชื่อ (✕) จะแสดงตามสถานะโหมดแก้ไขในขณะนั้นทันที
             const delBtnDisplay = isEditMode ? 'flex' : 'none';
             const delBtnHtml = `<button class="btn-del-payer" style="display:${delBtnDisplay};" onclick="deletePayer('${name}')">✕</button>`;
             
@@ -494,7 +487,7 @@
                 </h3>
                 <div class="amount">${personTotals[name].toLocaleString('th-TH', {minimumFractionDigits: 2})}<span class="currency"> บาท</span></div>
             `;
-            summaryBoxes.appendChild(card);
+            dynamicContainer.appendChild(card);
         });
     }
 
@@ -521,7 +514,6 @@
             const receiptHtml = exp.receipt ? `<img src="${exp.receipt}" class="img-preview" onclick="viewImage('${exp.receipt}')">` : '<span class="no-img">ไม่มี</span>';
             const payerBadgeClass = exp.payer === 'ร้าน' ? 'badge-payer badge-shop' : 'badge-payer';
 
-            // ปุ่มลบในตารางจะขึ้นตามสถานะโหมดแก้ไขทันที
             const tdManageHtml = isEditMode ? `<td><button class="btn btn-danger" style="display:inline-block; padding: 5px 12px; font-size: 0.85rem; border-radius: 10px;" onclick="deleteExpense(${exp.id})">ลบ</button></td>` : '';
 
             tr.innerHTML = `
@@ -547,7 +539,6 @@
         renderTable();
     }
 
-    // เรียกทำงานตอนโหลดหน้าเว็บครั้งแรก
     updatePayerDropdown();
     renderAll();
 </script>
