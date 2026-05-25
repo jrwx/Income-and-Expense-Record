@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>บันทึกรายจ่าย 💸</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
     <style>
         :root {
             --primary: #ff7a3c;
@@ -25,9 +28,21 @@
             padding: 20px;
             line-height: 1.5;
         }
-        .container { max-width: 1050px; margin: 0 auto; }
         
-        /* กรอบหัวข้อใหญ่: พื้นหลังสีขาว เส้นขอบสีส้มหนาชัดเจน */
+        /* 🔒 ส่วนระบบล็อกอิน: บังคับซ่อนหน้าแอปหลักไว้ก่อนล็อกอินผ่าน */
+        .container { max-width: 1050px; margin: 0 auto; display: none; }
+        
+        #login-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-color); display: flex; justify-content: center; align-items: center; z-index: 9999;
+        }
+        .login-box {
+            background: white; padding: 35px; border-radius: 24px; width: 90%; max-width: 400px;
+            box-shadow: 0 10px 30px rgba(255, 122, 60, 0.1); border: 2px solid var(--border-color); text-align: center;
+        }
+        .login-box h2 { color: #d95d26; margin-top: 0; margin-bottom: 25px; font-size: 1.6rem; }
+
+        /* ✨ ดีไซน์ดั้งเดิมของน้าทั้งหมด ไม่มีการขยับปรับเปลี่ยนใดๆ */
         .web-header {
             display: flex;
             flex-direction: column;
@@ -50,6 +65,9 @@
         }
         .web-header-text p { margin: 8px 0 0 0; color: var(--text-muted); font-size: 1rem; }
         
+        /* จัดกรุ๊ปปุ่มด้านบน */
+        .header-buttons { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+        
         .btn-toggle-edit {
             background-color: #fff; color: var(--primary); border: 2px solid var(--primary);
             padding: 10px 24px; border-radius: 50px; font-weight: bold; cursor: pointer;
@@ -66,7 +84,6 @@
             margin-bottom: 30px;
         }
         
-        /* กล่องยอดรวม: ไม่ใช่ปุ่มกด ไม่มีแว่นขยาย */
         .card.total {
             width: 100%;
             box-sizing: border-box;
@@ -132,8 +149,8 @@
         /* สั่งล็อกความสูงและหน้าตาของ Input / Select ทั้งหมดให้เท่ากันเสมอกันเป๊ะๆ */
         input, select { 
             width: 100%; 
-            height: 48px; /* ล็อกความสูง */
-            padding: 0 14px; /* รีเซ็ตระยะขอบบนล่างป้องกันกล่องยักษ์ */
+            height: 48px; 
+            padding: 0 14px; 
             border: 2px solid var(--border-color); 
             border-radius: 14px; 
             box-sizing: border-box; 
@@ -141,11 +158,10 @@
             font-family: inherit;
             color: var(--text-main); 
             background-color: #fffdfb; 
-            -webkit-appearance: none; /* ล้างค่าพิเศษของระบบ iOS/Safari */
+            -webkit-appearance: none; 
             appearance: none;
         }
 
-        /* สำหรับปุ่มเลือกในหน้าต่าง select ให้แสดงลูกศรปกติ */
         select {
             background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%234a3e3d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
             background-repeat: no-repeat;
@@ -154,17 +170,14 @@
             padding-right: 40px;
         }
 
-        /* แก้ไขพิเศษ: บังคับให้ช่องที่เป็นปฏิทิน (Date) มีขนาดหน้าตากล่องเท่าคนอื่น ไม่ขยายบวม */
         input[type="date"] {
             display: inline-flex;
             align-items: center;
             padding: 0 14px;
         }
         
-        /* โครงสร้างช่องกรอก วันที่ และ ใครจ่าย */
         .flex-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         
-        /* สลับเป็นแถวเดี่ยวเมื่อเปิดบนมือถือเพื่อป้องกันการซ้อนทับ */
         @media (max-width: 600px) {
             .flex-inputs { grid-template-columns: 1fr !important; gap: 15px; }
         }
@@ -177,7 +190,6 @@
         .name-manager input { flex: 1; }
         .name-manager .btn { width: auto; white-space: nowrap; height: 48px; }
         
-        /* สำหรับช่องอัปโหลดไฟล์ แนบสลิป/ใบเสร็จ */
         input[type="file"] {
             padding-top: 10px;
             font-size: 0.9rem;
@@ -216,13 +228,31 @@
 </head>
 <body>
 
-<div class="container">
+<div id="login-overlay">
+    <div class="login-box">
+        <h2>🔐 เข้าใช้งานระบบบันทึกรายจ่าย</h2>
+        <div class="form-group">
+            <label>📧 อีเมลประจำตัวผู้ใช้</label>
+            <input type="email" id="login-email" placeholder="ใส่ชื่ออีเมลที่ระบบอนุญาต" required>
+        </div>
+        <div class="form-group">
+            <label>🔑 รหัสผ่านเข้าเว็บ</label>
+            <input type="password" id="login-pass" placeholder="ระบุรหัสผ่าน" required>
+        </div>
+        <button class="btn" onclick="checkLogin()">ยืนยันเข้าใช้งาน</button>
+    </div>
+</div>
+
+<div class="container" id="main-web-app">
     <div class="web-header">
         <div class="web-header-text">
             <h1>บันทึกรายจ่าย</h1>
             <p>หากต้องการลงบันทึกหรือลบข้อมูล ให้เปิด "โหมดแก้ไข"</p>
         </div>
-        <button id="edit-toggle-btn" class="btn-toggle-edit" onclick="toggleEditMode()">⚙️ เปิดโหมดแก้ไข</button>
+        <div class="header-buttons">
+            <button id="edit-toggle-btn" class="btn-toggle-edit" onclick="toggleEditMode()">⚙️ เปิดโหมดแก้ไข</button>
+            <button class="btn-toggle-edit" style="border-color:#ff6b6b; color:#ff6b6b; margin-top:10px;" onclick="promptChangePassword()">🔑 เปลี่ยนรหัสผ่านเว็บ</button>
+        </div>
     </div>
 
     <div class="summary-wrapper">
@@ -318,24 +348,86 @@
 </div>
 
 <script>
+    // ⚙️ เชื่อมต่อคลาวด์ Firebase อ้างอิงจากค่าน้าโดยตรง
+    const firebaseConfig = {
+        apiKey: "AIzaSyAVwlKajtiOGGK0FQl4Kb17-UbYMqlnMd8",
+        authDomain: "incomeandexpenserecord.firebaseapp.com",
+        databaseURL: "https://incomeandexpenserecord-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "incomeandexpenserecord",
+        storageBucket: "incomeandexpenserecord.firebasestorage.app",
+        messagingSenderId: "1059338381507",
+        appId: "1:1059338381507:web:5f3133bdc4401ff8bb1a76"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    // 🔒 ล็อกชื่ออีเมลที่น้าอนุญาตให้ใช้งานตรงนี้ได้เลยครับน้า
+    let allowedEmail = "customer123@gmail.com"; 
+
+    // ฟังก์ชันตรวจสอบสิทธิ์และดึงรหัสผ่านออนไลน์
+    function checkLogin() {
+        const emailInput = document.getElementById('login-email').value.trim();
+        const passInput = document.getElementById('login-pass').value.trim();
+
+        if (emailInput !== allowedEmail) {
+            alert("❌ ขออภัยค่ะ อีเมลนี้ไม่มีสิทธิ์เข้าใช้งานระบบเว็บนี้");
+            return;
+        }
+
+        database.ref('web_password').once('value').then((snapshot) => {
+            let correctPassword = snapshot.val() || "1234"; // ครั้งแรกสุดถ้าระบบว่างเปล่า รหัสคือ 1234
+            
+            if (passInput === correctPassword) {
+                document.getElementById('login-overlay').style.display = 'none';
+                document.getElementById('main-web-app').style.display = 'block';
+                initApp(); 
+            } else {
+                alert("❌ รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้งค่ะ");
+            }
+        });
+    }
+
+    // ฟังก์ชันเปลี่ยนรหัสเข้าเว็บแล้วบันทึกขึ้น Cloud ถาวร
+    function promptChangePassword() {
+        let currentPass = prompt("กรุณาป้อนรหัสผ่านปัจจุบันก่อนทำรายการค่ะ:");
+        database.ref('web_password').once('value').then((snapshot) => {
+            let correctPassword = snapshot.val() || "1234";
+            if (currentPass !== correctPassword) {
+                alert("❌ รหัสผ่านปัจจุบันไม่ถูกต้อง ไม่สามารถเปลี่ยนได้ค่ะ");
+                return;
+            }
+            let newPass = prompt("ระบุรหัสผ่านใหม่ที่ต้องการ (ระบบจะอัปเดตขึ้นคลาวด์ทันที):");
+            if (newPass && newPass.trim().length >= 4) {
+                database.ref('web_password').set(newPass.trim()); 
+                alert("✅ เปลี่ยนรหัสผ่านสำเร็จ! รหัสผ่านใหม่ของน้าบันทึกขึ้นคลาวด์ถาวรแล้วค่ะ");
+            } else {
+                alert("❌ รหัสผ่านใหม่ต้องมีความยาวอย่างน้อย 4 ตัวขึ้นไปน้า");
+            }
+        });
+    }
+
+    // --- ส่วนฟังก์ชันจัดเก็บรายจ่ายดั้งเดิมของน้าทั้งหมด ห้ามแตะต้อง ---
     let db;
     let payers = JSON.parse(localStorage.getItem('payers_cute')) || [];
     let expenses = [];
     let isEditMode = false;
     let currentFilterPayer = 'all';
 
-    const request = indexedDB.open("CuteExpenseUltimateDB", 1);
-    request.onupgradeneeded = function(e) {
-        db = e.target.result;
-        if (!db.objectStoreNames.contains("expenses")) {
-            db.createObjectStore("expenses", { keyPath: "id" });
-        }
-    };
-    request.onsuccess = function(e) {
-        db = e.target.result;
-        loadExpensesFromDB();
-    };
-    request.onerror = function() { alert("เปิดฐานข้อมูลล้มเหลว"); };
+    function initApp() {
+        const request = indexedDB.open("CuteExpenseUltimateDB", 1);
+        request.onupgradeneeded = function(e) {
+            db = e.target.result;
+            if (!db.objectStoreNames.contains("expenses")) {
+                db.createObjectStore("expenses", { keyPath: "id" });
+            }
+        };
+        request.onsuccess = function(e) {
+            db = e.target.result;
+            loadExpensesFromDB();
+        };
+        request.onerror = function() { alert("เปิดฐานข้อมูลล้มเหลว"); };
+        setTodayDate();
+    }
 
     function loadExpensesFromDB() {
         const transaction = db.transaction(["expenses"], "readonly");
@@ -350,7 +442,6 @@
     }
 
     function setTodayDate() { document.getElementById('exp-date').valueAsDate = new Date(); }
-    setTodayDate();
 
     function showMsg(text) {
         let box = document.getElementById('toast-msg');
@@ -478,7 +569,7 @@
             clearBtn.style.display = 'none';
             tableSec.classList.remove('highlight-filter');
         } else {
-            titleEl.textContent = `🔍 รายการที่คู่กับชื่อ: ${payerName}`;
+            titleEl.textContent = `🔍 รายจ่ายของคุณ: ${payerName}`;
             clearBtn.style.display = 'inline-block';
             tableSec.classList.add('highlight-filter');
             tableSec.scrollIntoView({ behavior: 'smooth' });
