@@ -188,7 +188,7 @@
             box-shadow: 0 8px 16px -4px rgba(255, 122, 60, 0.06); border: 2px solid var(--border-color);
         }
         
-        /* ล็อกตารางให้สูงประมาณ 5 แถว เลื่อนถูดูได้เลย */
+        /* สไตล์ใหม่ล็อกความสูงตาราง: ให้เห็นประมาณ 5 แถวพอดี (แถวละประมาณ 55px) ถ้าเกินกว่านี้ให้เลื่อนถูนิ้วดูเอา */
         .table-responsive { 
             max-height: 330px; 
             overflow-y: auto; 
@@ -197,6 +197,7 @@
             border: 2px solid var(--border-color); 
         }
         
+        /* ทำส่วนหัวตารางให้ตรึงอยู่กับที่ (Sticky) เวลาเลื่อนนิ้วดู หัวตารางจะได้ไม่หายไปไหน */
         table { width: 100%; border-collapse: collapse; text-align: left; background: white; }
         th { 
             position: sticky;
@@ -205,7 +206,7 @@
             color: #d95d26; 
             font-weight: bold; 
             z-index: 10;
-            box-shadow: 0 1px 0 var(--border-color);
+            box-shadow: 0 1px 0 var(--border-color); /* ป้องกันเส้นขอบจางหายตอนเลื่อน */
         }
         th, td { padding: 14px 18px; border-bottom: 1px solid var(--border-color); }
         
@@ -313,7 +314,7 @@
                         <th style="width: 15%;">ยอดเงิน</th>
                         <th style="width: 10%;">สลิป</th>
                         <th style="width: 10%;">ใบเสร็จ</th>
-                        <th id="th-manage" style="width: 10%;">จัดการ</th>
+                        <th id="th-manage" style="width: 10%; display: none;">จัดการ</th>
                     </tr>
                 </thead>
                 <tbody id="expense-table-body"></tbody>
@@ -337,15 +338,18 @@
         isEditMode = !isEditMode;
         const btn = document.getElementById('edit-toggle-btn');
         const editWidgets = document.getElementById('edit-widgets');
+        const thManage = document.getElementById('th-manage');
 
         if(isEditMode) {
             btn.textContent = '🔒 ปิดโหมดแก้ไข';
             btn.classList.add('active');
             editWidgets.style.display = 'grid'; 
+            thManage.style.display = 'table-cell'; 
         } else {
             btn.textContent = '⚙️ เปิดโหมดแก้ไข';
             btn.classList.remove('active');
             editWidgets.style.display = 'none'; 
+            thManage.style.display = 'none'; 
         }
         
         renderAll(); 
@@ -434,18 +438,16 @@
         expenses.push(newExpense);
         localStorage.setItem('expenses_cute', JSON.stringify(expenses));
         
-        // ล้างข้อมูลในช่องกรอกทันที
         document.getElementById('exp-title').value = '';
         document.getElementById('exp-amount').value = '';
         document.getElementById('exp-slip').value = '';
         document.getElementById('exp-receipt').value = '';
 
-        // บังคับอัปเดตหน้าจอทันทีแบบ Real-time (ไม่ต้องปิดโหมดแก้ไขก็เห็น)
         renderAll();
         
         setTimeout(() => {
             alert('บันทึกเรียบร้อยแล้วค่ะ!');
-        }, 50);
+        }, 80);
     }
 
     function deleteExpense(id) {
@@ -453,12 +455,11 @@
             expenses = expenses.filter(exp => exp.id !== id);
             localStorage.setItem('expenses_cute', JSON.stringify(expenses));
             
-            // อัปเดตหน้าจอทันทีแบบ Real-time ทันทีที่กดลบ
             renderAll();
             
             setTimeout(() => {
                 alert('ลบรายการเรียบร้อยแล้วค่ะ!');
-            }, 50);
+            }, 80);
         }
     }
 
@@ -513,15 +514,7 @@
 
     function renderTable() {
         const tbody = document.getElementById('expense-table-body');
-        const thManage = document.getElementById('th-manage');
         tbody.innerHTML = '';
-
-        // ควบคุมการแสดงผลของหัวตาราง "จัดการ" ตามโหมดแก้ไขปัจจุบัน
-        if(isEditMode) {
-            thManage.style.display = 'table-cell';
-        } else {
-            thManage.style.display = 'none';
-        }
 
         const sortedExpenses = [...expenses].sort((a,b) => new Date(b.date) - new Date(a.date));
 
@@ -534,8 +527,7 @@
             const receiptHtml = exp.receipt ? `<img src="${exp.receipt}" class="img-preview" onclick="viewImage('${exp.receipt}')">` : '<span class="no-img">ไม่มี</span>';
             const payerBadgeClass = exp.payer === 'ร้าน' ? 'badge-payer badge-shop' : 'badge-payer';
 
-            // แสดงหรือซ่อนปุ่มลบตามสถานะโหมดแก้ไขทันที
-            const tdManageHtml = isEditMode ? `<td><button class="btn btn-danger" style="display:inline-block; padding: 5px 12px; font-size: 0.85rem; border-radius: 10px;" onclick="deleteExpense(${exp.id})">ลบ</button></td>` : '<td style="display:none;"></td>';
+            const tdManageHtml = isEditMode ? `<td><button class="btn btn-danger" style="display:inline-block; padding: 5px 12px; font-size: 0.85rem; border-radius: 10px;" onclick="deleteExpense(${exp.id})">ลบ</button></td>` : '';
 
             tr.innerHTML = `
                 <td>${formattedDate}</td>
@@ -550,7 +542,8 @@
         });
 
         if(sortedExpenses.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">ยังไม่มีข้อมูลบันทึกรายจ่ายเลยน้า มาร่วมเริ่มบันทึกกันเลย! 🍊</td></tr>`;
+            const colspanVal = isEditMode ? 7 : 6;
+            tbody.innerHTML = `<tr><td colspan="${colspanVal}" style="text-align: center; color: var(--text-muted); padding: 30px;">ยังไม่มีข้อมูลบันทึกรายจ่ายเลยน้า มาร่วมเริ่มบันทึกกันเลย! 🍊</td></tr>`;
         }
     }
 
@@ -559,7 +552,6 @@
         renderTable();
     }
 
-    // เริ่มต้นระบบครั้งแรก
     updatePayerDropdown();
     renderAll();
 </script>
