@@ -374,7 +374,7 @@
         updateWebTitleWithCurrentMonth();
 
         database.ref('cute_payers').on('value', (snapshot) => {
-            payers = (snapshot.val() || []).filter(name => name);
+            payers = (snapshot.val() || []).filter(name => name && name.trim());
             updatePayerDropdown();
             renderAll();
         });
@@ -461,7 +461,7 @@
             if (currentFilterPayer === name) {
                 currentFilterPayer = 'all';
             }
-            renderAll(); // อัปเดตตารางและยอดสรุปทันทีเมื่อลบชื่อ
+            renderAll(); 
             showMsg('ลบแล้ว 🗑️');
         });
     }
