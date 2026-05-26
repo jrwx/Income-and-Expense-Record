@@ -642,17 +642,15 @@ function renderSummary() {
     payers.forEach(p => person[p] = 0);
 
     expenses.forEach(exp => {
-        grand += exp.amount;
+    grand += exp.amount;
 
-        if (exp.payer === 'ร้าน') {
-            shop += exp.amount;
-        } else {
-            if (person[exp.payer] === undefined) {
-                person[exp.payer] = 0;
-            }
-            person[exp.payer] += exp.amount;
-        }
-    });
+    if (exp.payer === 'ร้าน') {
+        shop += exp.amount;
+    }
+    else if (payers.includes(exp.payer)) {
+        person[exp.payer] += exp.amount;
+    }
+});
 
     document.getElementById('grand-total').innerHTML =
         `${grand.toLocaleString('th-TH',{minimumFractionDigits:2})} <span class="currency">บาท</span>`;
