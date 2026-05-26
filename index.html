@@ -622,23 +622,68 @@
         }
     }
 
-    function renderSummary() {
-        let grand = 0; let shop = 0; const person = {};
-        payers.forEach(p => person[p] = 0);
-        expenses.forEach(exp => {
-            grand += exp.amount;
-            if (exp.payer === 'ร้าน') { shop += exp.amount; } 
-            else { if (person[exp.payer] === undefined) { person[exp.payer] = 0; } person[exp.payer] += exp.amount; }
-        });
-        document.getElementById('grand-total').innerHTML = `${grand.toLocaleString('th-TH', {minimumFractionDigits:2})} <span class="currency">บาท</span>`;
-        document.getElementById('shop-total').innerHTML = `${shop.toLocaleString('th-TH', {minimumFractionDigits:2})} <span class="currency">บาท</span>`;
-        const box = document.getElementById('dynamic-person-boxes'); box.innerHTML = '';
-        Object.keys(person).forEach(name => {
-            const card = document.createElement('div'); card.className = 'card person clickable';
-            card.setAttribute('onclick', `filterByPayer('${name}')`);
-            card.innerHTML = `<h3><span>👤 ${name} <span class="search-icon">🔍</span></span>${isEditMode ? `<button class="btn-del-payer" style="display:flex" onclick="event.stopPropagation(); deletePayer('${name}')">✕</button>` : ''}</h3><div class="amount">${person[name].toLocaleString('th-TH', {minimumFractionDigits:2})} <span class="currency">บาท</span></div>`;
-            box.appendChild(card);
-        });
+function renderSummary() {
+    let grand = 0;
+    let shop = 0;
+    const person = {};
+
+    payers.forEach(p => person[p] = 0);
+
+    expenses.forEach(exp => {
+        grand += exp.amount;
+
+        if (exp.payer === 'ร้าน') {
+            shop += exp.amount;
+        } else {
+            if (person[exp.payer] === undefined) {
+                person[exp.payer] = 0;
+            }
+            person[exp.payer] += exp.amount;
+        }
+    });
+
+    document.getElementById('grand-total').innerHTML =
+        `${grand.toLocaleString('th-TH',{minimumFractionDigits:2})} <span class="currency">บาท</span>`;
+
+    document.getElementById('shop-total').innerHTML =
+        `${shop.toLocaleString('th-TH',{minimumFractionDigits:2})} <span class="currency">บาท</span>`;
+
+    const box = document.getElementById('dynamic-person-boxes');
+    box.innerHTML = '';
+
+    Object.keys(person).forEach(name => {
+
+        const card = document.createElement('div');
+        card.className = 'card person clickable';
+        card.onclick = () => filterByPayer(name);
+
+        const delBtn = isEditMode
+            ? `<button class="btn-del-payer" style="display:flex">✕</button>`
+            : '';
+
+        card.innerHTML = `
+            <h3>
+                <span>👤 ${name} <span class="search-icon">🔍</span></span>
+                ${delBtn}
+            </h3>
+            <div class="amount">
+                ${person[name].toLocaleString('th-TH',{minimumFractionDigits:2})}
+                <span class="currency">บาท</span>
+            </div>
+        `;
+
+        if (isEditMode) {
+            const btn = card.querySelector('.btn-del-payer');
+
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                deletePayer(name);
+            };
+        }
+
+        box.appendChild(card);
+    });
+}
     }
 
     function viewImage(img) { if (!img) return; document.getElementById('modal-img').src = img; document.getElementById('image-modal').style.display = 'flex'; }
