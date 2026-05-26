@@ -345,10 +345,14 @@
         updateWebTitleWithCurrentMonth();
 
         database.ref('cute_payers').on('value', (snapshot) => {
-            payers = snapshot.val() || [];
-            updatePayerDropdown();
-            renderAll();
-        });
+
+    payers = (snapshot.val() || [])
+        .filter(name => name);
+
+    updatePayerDropdown();
+    renderAll();
+
+});
 
         database.ref('cute_expenses').on('value', (snapshot) => {
             const data = snapshot.val() || {};
@@ -425,15 +429,23 @@
         showMsg('เพิ่มรายชื่อสำเร็จ ✨');
     }
 
-    function deletePayer(name) {
-        if (!confirm(`คุณแน่ใจใช่ไหมว่าจะลบชื่อ "${name}" ออก?`)) return;
-        payers = payers.filter(p => p !== name);
-        database.ref('cute_payers').set(payers);
-        if (currentFilterPayer === name) currentFilterPayer = 'all';
-        updatePayerDropdown();
-        renderAll();
-        showMsg('ลบแล้ว 🗑️');
-    }
+function deletePayer(name) {
+
+    if (!confirm(`คุณแน่ใจใช่ไหมว่าจะลบชื่อ "${name}" ออก?`)) return;
+
+    const newPayers = payers.filter(p => p && p !== name);
+
+    database.ref('cute_payers')
+        .set(newPayers)
+        .then(() => {
+
+            if (currentFilterPayer === name) {
+                currentFilterPayer = 'all';
+            }
+
+            showMsg('ลบแล้ว 🗑️');
+        });
+}
 
     function updatePayerDropdown() {
         const select = document.getElementById('exp-payer');
