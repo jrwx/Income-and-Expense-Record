@@ -126,8 +126,8 @@
         .btn-clear-filter { background: #ffe5d9; color: #d95d26; border: none; padding: 6px 14px; border-radius: 10px; font-weight: bold; cursor: pointer; }
         .highlight-filter { border: 2px solid var(--primary) !important; }
 
-        /* 🏛️ สไตล์ตกแต่งเฉพาะสำหรับรายงาน PDF (ให้ดูเป็นทางการ/มืออาชีพ) */
-        #pdf-export-container { display: none; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #222; background: #fff; padding: 10px; }
+        /* 🏛️ สไตล์เฉพาะรายงานแบบ "เต็มหน้าจอ" เหมือนเปิดไฟล์ PDF แยกต่างหาก */
+        #pdf-export-container { display: none; max-width: 850px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
         .pdf-report-header { text-align: center; border-bottom: 3px double #333; padding-bottom: 15px; margin-bottom: 25px; }
         .pdf-report-header h2 { margin: 0; font-size: 24px; color: #111; font-weight: bold; }
         .pdf-report-header p { margin: 5px 0 0 0; font-size: 14px; color: #555; }
@@ -144,10 +144,10 @@
         .pdf-table td { border: 1px solid #ccc; padding: 8px 10px; color: #333; background: #fff; }
         .pdf-table-footer { text-align: right; font-size: 14px; font-weight: bold; padding: 8px; background: #fafafa; border: 1px solid #ccc; border-top: none; }
         
-        /* ปุ่มเซฟไฟล์เฉพาะบนรายงาน PDF */
-        .pdf-save-action-wrapper { text-align: center; margin-bottom: 20px; }
-        .btn-pdf-download-now { background-color: #2ec4b6; color: white; border: none; padding: 12px 30px; border-radius: 50px; font-size: 1.1rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(46, 196, 182, 0.3); transition: all 0.2s; }
-        .btn-pdf-download-now:hover { background-color: #24ab9e; transform: scale(1.03); }
+        /* แถบหัวปุ่มสำหรับจัดการด้านบน */
+        .pdf-save-action-wrapper { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; padding: 15px; background: #f0f3f5; border-radius: 12px; }
+        .btn-pdf-download-now { background-color: #2ec4b6; color: white; border: none; padding: 12px 30px; border-radius: 50px; font-size: 1.05rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(46, 196, 182, 0.25); }
+        .btn-pdf-back-home { background-color: var(--primary); color: white; border: none; padding: 12px 30px; border-radius: 50px; font-size: 1.05rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 122, 60, 0.25); }
     </style>
 </head>
 <body>
@@ -271,12 +271,12 @@
             </div>
         </div>
     </div>
-
 </div>
 
 <div id="pdf-export-container">
     <div class="pdf-save-action-wrapper data-html2pdf-ignore">
-        <button class="btn-pdf-download-now" onclick="triggerDirectDownloadPDF()">💾 กดบันทึกไฟล์ PDF ลงเครื่องคอม/มือถือ</button>
+        <button class="btn-pdf-download-now" onclick="triggerDirectDownloadPDF()">💾 กดบันทึกไฟล์ PDF ลงเครื่อง</button>
+        <button class="btn-pdf-back-home" onclick="hidePDFReportView()">↩️ ย้อนกลับไปหน้าหลักเว็บ</button>
     </div>
     <div class="pdf-report-header">
         <h2 id="pdf-month-title">รายงานสรุปยอดรายจ่ายประจำเดือน</h2>
@@ -313,7 +313,7 @@
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    let allowedEmail = "M.mookkmokk@gmail.com"; 
+    let allowedEmail = "customer123@gmail.com"; 
     let payers = [];
     let expenses = [];
     let isEditMode = false;
@@ -503,13 +503,14 @@
         database.ref('cute_expenses/' + id).remove().then(() => { showMsg('ลบแล้ว 🗑️'); });
     }
 
+    // 📥 เปลี่ยนพฤติกรรมการทำงาน: ซ่อนหน้าหลักทิ้ง และดึงตัวรายงานขึ้นมาโชว์เต็มๆ หน้าจอแทน
     function generateProfessionalPDF() {
         if (expenses.length === 0) {
             alert("❌ ไม่สามารถออกรายงานได้เนื่องจากไม่มีข้อมูลบันทึกในเดือนนี้ค่ะ");
             return;
         }
 
-        showMsg('กำลังจัดเรียงข้อมูลบัญชี PDF...');
+        showMsg('กำลังสลับหน้าเปิดไฟล์เอกสาร...');
 
         document.getElementById('pdf-print-date').textContent = new Date().toLocaleDateString('th-TH', {day:'numeric', month:'long', year:'numeric'});
         document.getElementById('pdf-total-items').textContent = expenses.length;
@@ -555,7 +556,7 @@
 
             section.innerHTML = `
                 <div class="pdf-payer-title">
-                    <span>👤 รายการจ่ายของคุณ: ${payerName}</span>
+                    <span>👤 รายการจ่ายของ: ${payerName}</span>
                 </div>
                 <table class="pdf-table">
                     <thead>
@@ -576,19 +577,17 @@
             container.appendChild(section);
         });
 
-        // เปิดสิทธิ์แสดงพื้นที่แสดงผล PDF เพื่อให้ไลบรารีจับภาพข้อมูลได้ครบถ้วน
-        const element = document.getElementById('pdf-export-container');
-        element.style.display = 'block'; 
+        // 🌟 จุดเปลี่ยนสำคัญ: ซ่อนเว็บหลักออกไปชั่วคราว แล้วเปิดเอกสารเด่นขึ้นมาเต็มๆ แทนหน้าใหม่ไปเลย
+        document.getElementById('main-web-app').style.display = 'none';
+        document.getElementById('pdf-export-container').style.display = 'block'; 
         
-        // สั่งเลื่อนหน้าจอลงมาที่ตัวเอกสาร PDF โดยอัตโนมัติ เพื่อให้น้าเห็นปุ่มดาวน์โหลดได้ชัดเจนทันที
-        element.scrollIntoView({ behavior: 'smooth' });
-        showMsg('✨ เปิดรายงาน PDF สำเร็จ! สามารถตรวจทานและกดปุ่มเซฟลงเครื่องได้เลยค่ะ');
+        window.scrollTo({ top: 0 }); // ดันหน้าจอขึ้นบนสุด
     }
 
-    // 💾 ฟังก์ชันกดบันทึกไฟล์ลงเครื่องตรง ๆ (ทำงานเมื่อน้าคลิกปุ่มสีเขียวบนหน้า PDF)
+    // 💾 ปุ่มบันทึกไฟล์ลงเครื่องโดยตรง
     function triggerDirectDownloadPDF() {
         const element = document.getElementById('pdf-export-container');
-        showMsg('กำลังแพ็กไฟล์ดาวน์โหลด...');
+        showMsg('กำลังดาวน์โหลดไฟล์ลงเครื่อง...');
 
         const opt = {
             margin:       12,
@@ -597,7 +596,6 @@
             html2canvas:  { scale: 2, useCORS: true },
             jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
             ignoreElements: function(el) {
-                // ระบุคลาสพิเศษเพื่อซ่อนปุ่มกดเซฟสีเขียว ไม่ให้ติดเข้าไปเลอะเทอะในแผ่นกระดาษ PDF จริง
                 return el.classList.contains('data-html2pdf-ignore');
             }
         };
@@ -605,6 +603,14 @@
         html2pdf().set(opt).from(element).save().then(() => {
             alert("📥 บันทึกไฟล์รายงาน PDF ลงบนเครื่องสำเร็จเรียบร้อยแล้วค่ะน้า!");
         });
+    }
+
+    // ↩️ ปุ่มสลับหน้าจอกลับมาหน้าป้อนข้อมูลปกติ
+    function hidePDFReportView() {
+        document.getElementById('pdf-export-container').style.display = 'none';
+        document.getElementById('main-web-app').style.display = 'block'; // เรียกคืนหน้าหลักกลับมา
+        window.scrollTo({ top: 0 });
+        showMsg('↩️ ย้อนกลับมาหน้าหลักเรียบร้อยแล้วค่ะ');
     }
 
     // 🗑️ ฟังก์ชันล้างประวัติประจำเดือน
