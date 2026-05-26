@@ -604,7 +604,7 @@ function deletePayer(name) {
     function clearMonthlyDatabase() {
         if (confirm("⚠️ ยืนยันการล้างประวัติประจำเดือนเพื่อขึ้นรอบใหม่ใช่ไหมคะ? ข้อมูลจะถูกเซ็ตกลับเป็นศูนย์พร้อมกัน")) {
             let doubleCheck = prompt("กรุณาพิมพ์คำว่า 'ลบข้อมูล' เพื่อทำรายการเคลียร์ระบบ:");
-            if (doubleCheck === 'ยืนยันลบข้อมูล') {
+            if (doubleCheck === 'ลบข้อมูล') {
                 database.ref('cute_expenses').remove().then(() => {
                     alert("🗑️ เคลียร์ประวัติเสร็จสิ้น! ปลดล็อกระบบเรียบร้อย พร้อมเริ่มคีย์ข้อมูลเดือนใหม่ได้ทันทีค่ะ");
                     location.reload(); 
