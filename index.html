@@ -342,7 +342,7 @@
 
     function initApp() {
         setTodayDate();
-        updateWebTitleWithWithCurrentMonth();
+        updateWebTitleWithCurrentMonth();
 
         database.ref('cute_payers').on('value', (snapshot) => {
             payers = snapshot.val() || [];
@@ -428,7 +428,6 @@
     function deletePayer(name) {
         if (!confirm(`คุณแน่ใจใช่ไหมว่าจะลบชื่อ "${name}" ออก?`)) return;
         payers = payers.filter(p => p !== name);
-        // ✅ เพิ่มคำสั่งเซ็ตค่าลงไปที่ Firebase เพื่อบันทึกข้อมูลการลบจริง
         database.ref('cute_payers').set(payers);
         showMsg('ลบแล้ว 🗑️');
     }
