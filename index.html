@@ -429,6 +429,9 @@
         if (!confirm(`คุณแน่ใจใช่ไหมว่าจะลบชื่อ "${name}" ออก?`)) return;
         payers = payers.filter(p => p !== name);
         database.ref('cute_payers').set(payers);
+        if (currentFilterPayer === name) currentFilterPayer = 'all';
+        updatePayerDropdown();
+        renderAll();
         showMsg('ลบแล้ว 🗑️');
     }
 
@@ -586,7 +589,6 @@
         });
     }
 
-    // 🗑️ ฟังก์ชันล้างประวัติแบบ "ไม่ต้องพึ่งพาการดาวน์โหลด PDF ก่อน" สามารถเคลียร์ได้ทันที
     function clearMonthlyDatabase() {
         if (confirm("⚠️ ยืนยันการล้างประวัติประจำเดือนเพื่อขึ้นรอบใหม่ใช่ไหมคะ? ข้อมูลจะถูกเซ็ตกลับเป็นศูนย์พร้อมกัน")) {
             let doubleCheck = prompt("กรุณาพิมพ์คำว่า 'ลบข้อมูล' เพื่อทำรายการเคลียร์ระบบ:");
