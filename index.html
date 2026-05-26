@@ -231,6 +231,7 @@
                         <th style="width: 20%">ยอดเงิน</th>
                         <th style="width: 10%">สลิป</th>
                         <th style="width: 10%">ใบเสร็จ</th>
+                        <th style="width:10%">บิล</th>
                         <th id="th-manage" style="width: 10%;">⚙️ จัดการ</th>
                     </tr>
                 </thead>
@@ -282,6 +283,47 @@
                             <input type="file" id="exp-receipt" accept="image/*">
                         </div>
                     </div>
+                    <div class="form-group">
+    <label>🧾 สถานะบิล</label>
+
+    <div style="
+        display:flex;
+        gap:20px;
+        padding:10px 5px;
+    ">
+
+        <label style="
+            display:flex;
+            align-items:center;
+            gap:8px;
+            margin:0;
+        ">
+            <input
+                type="radio"
+                name="bill-status"
+                value="มีบิล"
+                checked
+            >
+            มีบิล
+        </label>
+
+        <label style="
+            display:flex;
+            align-items:center;
+            gap:8px;
+            margin:0;
+        ">
+            <input
+                type="radio"
+                name="bill-status"
+                value="ไม่มีบิล"
+            >
+            ไม่มีบิล
+        </label>
+
+    </div>
+
+</div>
                     <button type="submit" class="btn" id="btn-submit-expense">บันทึกรายการ</button>
                 </form>
             </div>
@@ -327,7 +369,10 @@
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    let allowedEmail = "M.mookkmokk@gmail.com"; 
+    let allowedEmails = [
+    "m.mookkmookk@gmail.com",
+    "Ambercup.uth@gmail.com"
+];
     let payers = [];
     let expenses = [];
     let isEditMode = false;
@@ -336,7 +381,14 @@
     function checkLogin() {
         const emailInput = document.getElementById('login-email').value.trim();
         const passInput = document.getElementById('login-pass').value.trim();
-        if (emailInput !== allowedEmail) { alert("❌ อีเมลนี้ไม่มีสิทธิ์เข้าใช้งานค่ะ"); return; }
+        if (
+    !allowedEmails.some(
+        mail => mail.toLowerCase() === emailInput.toLowerCase()
+    )
+){
+    alert("❌ อีเมลนี้ไม่มีสิทธิ์เข้าใช้งานค่ะ");
+    return;
+}
 
         database.ref('web_password').once('value').then((snapshot) => {
             let correctPassword = snapshot.val() || "1234";
@@ -514,11 +566,36 @@ function deletePayer(name) {
         const slip = await compressImageFile(slipFile);
         const receipt = await compressImageFile(receiptFile);
 
-        const newExpense = {
-            id, date: document.getElementById('exp-date').value,
-            payer: document.getElementById('exp-payer').value,
-            title, amount, slip, receipt
-        };
+        const billStatus =
+document.querySelector(
+'input[name="bill-status"]:checked'
+)?.value || 'ไม่มีบิล';
+
+const newExpense = {
+
+    id,
+
+    date:
+    document.getElementById(
+    'exp-date'
+    ).value,
+
+    payer:
+    document.getElementById(
+    'exp-payer'
+    ).value,
+
+    title,
+
+    amount,
+
+    slip,
+
+    receipt,
+
+    billStatus
+
+};
 
         database.ref('cute_expenses/' + id).set(newExpense).then(() => {
             document.getElementById('expense-form').reset();
@@ -574,12 +651,45 @@ function deletePayer(name) {
                     formattedDate = d.toLocaleDateString('th-TH', {day: '2-digit', month: 'short', year: '2-digit'}).replace('พ.ศ. ','');
                 }
                 tableRowsHTML += `
-                    <tr>
-                        <td style="width: 20%; font-weight: bold;">${formattedDate}</td>
-                        <td>${item.title}</td>
-                        <td style="width: 25%; text-align: right; font-weight: bold;">${item.amount.toLocaleString('th-TH', {minimumFractionDigits: 2})}</td>
-                    </tr>
-                `;
+<tr>
+
+<td style="
+width:18%;
+font-weight:bold;
+">
+${formattedDate}
+</td>
+
+<td>
+${item.title}
+<br>
+
+<small>
+🧾 ${
+item.billStatus ||
+'ไม่มีบิล'
+}
+</small>
+
+</td>
+
+<td style="
+width:25%;
+text-align:right;
+font-weight:bold;
+">
+
+${item.amount.toLocaleString(
+'th-TH',
+{
+minimumFractionDigits:2
+}
+)}
+
+</td>
+
+</tr>
+`;
             });
 
             section.innerHTML = `
@@ -761,6 +871,9 @@ if (isEditMode) {
                 <td><strong>${formattedDate}</strong></td><td><strong>${exp.title}</strong></td><td><span class="${payerClass}">${exp.payer}</span></td>
                 <td style="font-weight: bold; color: #d95d26;">${exp.amount.toLocaleString('th-TH', {minimumFractionDigits:2})}</td>
                 <td class="pdf-hide">${exp.slip ? `<img src="${exp.slip}" class="img-preview" onclick="viewImage('${exp.slip}')">` : '-'}</td>
+                <td>
+${exp.billStatus || 'ไม่มีบิล'}
+</td>
                 <td class="pdf-hide">${exp.receipt ? `<img src="${exp.receipt}" class="img-preview" onclick="viewImage('${exp.receipt}')">` : '-'}</td>
                 <td style="display: ${isEditMode ? 'table-cell' : 'none'};"><button class="btn" style="background:var(--danger); padding: 5px 12px; font-size: 0.85rem; border-radius: 10px;" onclick="deleteExpense(${exp.id})">ลบ</button></td>
             `;
