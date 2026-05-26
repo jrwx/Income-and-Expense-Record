@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>บันทึกรายจ่ายรายเดือน 💸</title>
+    <title>ระบบบันทึกและสรุปรายจ่ายประจำเดือน 💸</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -12,7 +12,6 @@
         :root {
             --primary: #ff7a3c;
             --primary-hover: #ff631c;
-            --primary-light: #fff0e6;
             --success: #2ec4b6;
             --shop-color: #ffb703;
             --bg-color: #fffaf5;
@@ -42,7 +41,6 @@
         }
         .login-box h2 { color: #d95d26; margin-top: 0; margin-bottom: 25px; font-size: 1.6rem; }
 
-        /* แถบแจ้งเตือนวันสิ้นเดือน */
         .lock-banner {
             background-color: #fff3bf; color: #d48300; padding: 15px; border-radius: 16px;
             text-align: center; font-weight: bold; margin-bottom: 20px; border: 2px solid #ffe066;
@@ -66,12 +64,12 @@
         }
         .btn-toggle-edit.active { background-color: var(--primary); color: white; box-shadow: 0 4px 12px rgba(255, 122, 60, 0.3); }
         
-        .btn-pdf { background-color: #4dabf7; color: white; border: none; padding: 10px 24px; border-radius: 50px; font-weight: bold; cursor: pointer; }
+        .btn-pdf { background-color: #1a73e8; color: white; border: none; padding: 10px 24px; border-radius: 50px; font-weight: bold; cursor: pointer; }
         .btn-clear-all { background-color: var(--danger); color: white; border: none; padding: 10px 24px; border-radius: 50px; font-weight: bold; cursor: pointer; display: none; }
 
         .btn-key-header-corner { position: absolute; top: 20px; right: 25px; background: none; border: none; font-size: 1.3rem; cursor: pointer; padding: 5px; z-index: 99; }
 
-        /* Dashboard Layout */
+        /* Dashboard หน้าเว็บ */
         .summary-wrapper { display: flex; flex-direction: column; gap: 20px; margin-bottom: 30px; }
         .card.total { width: 100%; box-sizing: border-box; text-align: center; padding: 30px; background: #ffffff; border: 3px solid var(--primary); }
         .card.total .amount { font-size: clamp(2rem, 5vw, 3.2rem); color: var(--primary); font-weight: bold; }
@@ -92,7 +90,7 @@
         
         .btn-del-payer { background: var(--danger); color: white; border: none; width: 20px; height: 20px; border-radius: 50%; font-size: 0.7rem; cursor: pointer; display: none; align-items: center; justify-content: center; }
         
-        /* Form Layout */
+        /* ฟอร์มและปุ่ม */
         .main-layout { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; margin-bottom: 30px; }
         .edit-mode-section { display: none; }
         .section { background: var(--card-bg); padding: 25px; border-radius: 24px; box-shadow: 0 8px 16px -4px rgba(255, 122, 60, 0.06); border: 2px solid var(--border-color); height: 100%; box-sizing: border-box; }
@@ -110,9 +108,9 @@
         .name-manager input { flex: 1; }
         .name-manager .btn { width: auto; white-space: nowrap; height: 48px; }
         
-        /* Table Section */
+        /* ส่วนตารางประวัติบนหน้าเว็บ */
         .table-section { background: var(--card-bg); padding: 25px; border-radius: 24px; box-shadow: 0 8px 16px -4px rgba(255, 122, 60, 0.06); border: 2px solid var(--border-color); margin-bottom: 20px; }
-        .table-responsive { max-height: 480px; overflow-y: auto; overflow-x: auto; border-radius: 16px; border: 2px solid var(--border-color); }
+        .table-responsive { max-height: 520px; overflow-y: auto; overflow-x: auto; border-radius: 16px; border: 2px solid var(--border-color); }
         
         table { width: 100%; border-collapse: collapse; text-align: left; background: white; min-width: 650px; }
         th { position: sticky; top: 0; background-color: #fff5f0; color: #d95d26; font-weight: bold; z-index: 10; box-shadow: 0 1px 0 var(--border-color); }
@@ -127,6 +125,24 @@
         .filter-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .btn-clear-filter { background: #ffe5d9; color: #d95d26; border: none; padding: 6px 14px; border-radius: 10px; font-weight: bold; cursor: pointer; }
         .highlight-filter { border: 2px solid var(--primary) !important; }
+
+        /* 🏛️ สไตล์ตกแต่งเฉพาะสำหรับรายงาน PDF (ให้ดูเป็นทางการ/มืออาชีพ) */
+        #pdf-export-container { display: none; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #222; background: #fff; padding: 10px; }
+        .pdf-report-header { text-align: center; border-bottom: 3px double #333; padding-bottom: 15px; margin-bottom: 25px; }
+        .pdf-report-header h2 { margin: 0; font-size: 24px; color: #111; font-weight: bold; }
+        .pdf-report-header p { margin: 5px 0 0 0; font-size: 14px; color: #555; }
+        
+        .pdf-brief-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; background: #f9f9f9; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
+        .pdf-brief-item { font-size: 14px; }
+        .pdf-brief-item.total-bold { font-size: 16px; font-weight: bold; color: #d95d26; text-align: right; }
+        
+        .pdf-payer-section { margin-bottom: 30px; page-break-inside: avoid; }
+        .pdf-payer-title { font-size: 16px; font-weight: bold; color: #111; padding-bottom: 6px; border-bottom: 2px solid #555; margin-bottom: 10px; display: flex; justify-content: space-between; }
+        
+        .pdf-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: 13px; }
+        .pdf-table th { background-color: #f2f2f2; color: #222; font-weight: bold; border: 1px solid #ccc; padding: 8px 10px; text-align: left; box-shadow: none; position: static; }
+        .pdf-table td { border: 1px solid #ccc; padding: 8px 10px; color: #333; background: #fff; }
+        .pdf-table-footer { text-align: right; font-size: 14px; font-weight: bold; padding: 8px; background: #fafafa; border: 1px solid #ccc; border-top: none; }
     </style>
 </head>
 <body>
@@ -160,47 +176,45 @@
         </div>
         <div class="header-actions">
             <button id="edit-toggle-btn" class="btn-toggle-edit" onclick="toggleEditMode()">⚙️ เปิดโหมดแก้ไข</button>
-            <button class="btn-pdf" onclick="downloadPDFReport()">📥 โหลดรายงาน PDF</button>
+            <button class="btn-pdf" onclick="generateProfessionalPDF()">📥 โหลดรายงาน PDF</button>
             <button id="clear-all-btn" class="btn-clear-all" onclick="clearMonthlyDatabase()">🗑️ ล้างประวัติขึ้นเดือนใหม่</button>
         </div>
     </div>
 
-    <div id="pdf-report-area">
-        <div class="summary-wrapper">
-            <div class="card total">
-                <h3>💰 ยอดรวมรายจ่ายเดือนนี้ทั้งหมด</h3>
-                <div class="amount" id="grand-total">0.00<span class="currency">บาท</span></div>
-            </div>
-            <div class="grid-sub-summary">
-                <div class="card shop clickable" onclick="filterByPayer('ร้าน')">
-                    <h3>🏪 ร้านจ่าย <span class="search-icon">🔍</span></h3>
-                    <div class="amount" id="shop-total">0.00<span class="currency">บาท</span></div>
-                </div>
-                <div id="dynamic-person-boxes" style="display: contents;"></div>
-            </div>
+    <div class="summary-wrapper">
+        <div class="card total">
+            <h3>💰 ยอดรวมรายจ่ายเดือนนี้ทั้งหมด</h3>
+            <div class="amount" id="grand-total">0.00<span class="currency">บาท</span></div>
         </div>
+        <div class="grid-sub-summary">
+            <div class="card shop clickable" onclick="filterByPayer('ร้าน')">
+                <h3>🏪 ร้านจ่าย <span class="search-icon">🔍</span></h3>
+                <div class="amount" id="shop-total">0.00<span class="currency">บาท</span></div>
+            </div>
+            <div id="dynamic-person-boxes" style="display: contents;"></div>
+        </div>
+    </div>
 
-        <div class="table-section" id="table-display-section">
-            <div class="filter-header">
-                <h2 id="table-title" style="margin:0;">📋 รายการประวัติบันทึกรายจ่าย</h2>
-                <button id="clear-filter-btn" class="btn-clear-filter" style="display:none;" onclick="filterByPayer('all')">❌ แสดงทั้งหมด</button>
-            </div>
-            <div class="table-responsive">
-                <table>
-                    <thead>
-                        <tr>
-                            <th class="col-date">📅 วันที่</th>
-                            <th class="col-title">รายการ</th>
-                            <th class="col-payer">คนจ่าย</th>
-                            <th class="col-amount">ยอดเงิน</th>
-                            <th class="pdf-hide" style="width: 10%;">สลิป</th>
-                            <th class="pdf-hide" style="width: 10%;">ใบเสร็จ</th>
-                            <th id="th-manage" style="width: 10%;">⚙️ จัดการ</th>
-                        </tr>
-                    </thead>
-                    <tbody id="expense-table-body"></tbody>
-                </table>
-            </div>
+    <div class="table-section" id="table-display-section">
+        <div class="filter-header">
+            <h2 id="table-title" style="margin:0;">📋 รายการประวัติบันทึกรายจ่าย</h2>
+            <button id="clear-filter-btn" class="btn-clear-filter" style="display:none;" onclick="filterByPayer('all')">❌ แสดงทั้งหมด</button>
+        </div>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 15%">📅 วันที่</th>
+                        <th>รายการ</th>
+                        <th style="width: 15%">คนจ่าย</th>
+                        <th style="width: 20%">ยอดเงิน</th>
+                        <th style="width: 10%">สลิป</th>
+                        <th style="width: 10%">ใบเสร็จ</th>
+                        <th id="th-manage" style="width: 10%;">⚙️ จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody id="expense-table-body"></tbody>
+            </table>
         </div>
     </div>
 
@@ -255,12 +269,31 @@
 
 </div>
 
+<div id="pdf-export-container">
+    <div class="pdf-report-header">
+        <h2 id="pdf-month-title">รายงานสรุปยอดรายจ่ายประจำเดือน</h2>
+        <p>เอกสารสรุปยอดบัญชีแยกประเภทบุคคลแบบละเอียด</p>
+    </div>
+    <div class="pdf-brief-grid">
+        <div class="pdf-brief-item">
+            📅 <strong>วันที่ออกเอกสาร:</strong> <span id="pdf-print-date"></span><br>
+            📋 <strong>จำนวนรายการรวมทั้งหมด:</strong> <span id="pdf-total-items">0</span> รายการ
+        </div>
+        <div class="pdf-brief-item total-bold">
+            💰 ยอดรวมรายจ่ายสุทธิเดือนนี้:<br>
+            <span id="pdf-grand-total-text" style="font-size: 22px;">0.00</span> บาท
+        </div>
+    </div>
+    <div id="pdf-sections-content">
+        </div>
+</div>
+
 <div id="image-modal" class="modal" onclick="this.style.display='none'">
     <img id="modal-img" src="">
 </div>
 
 <script>
-    // ⚙️ เชื่อมต่อคลาวด์ Firebase ของน้า
+    // ⚙️ เชื่อมต่อคลาวด์ Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyAVwlKajtiOGGK0FQl4Kb17-UbYMqlnMd8",
         authDomain: "incomeandexpenserecord.firebaseapp.com",
@@ -323,7 +356,6 @@
             expenses = Object.keys(data).map(key => data[key]);
             expenses.sort((a, b) => b.id - a.id);
             renderAll();
-            // เช็กระบบล็อกกระดานทุกครั้งที่มีการอัปเดตข้อมูลบนคลาวด์
             checkAndLockStatus();
         });
     }
@@ -333,10 +365,11 @@
     function updateWebTitleWithCurrentMonth() {
         const months = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
         const d = new Date();
-        document.getElementById('web-title-month').textContent = `บันทึกรายจ่ายประจำเดือน ${months[d.getMonth()]} ${d.getFullYear()+543}`;
+        const textStr = `บันทึกรายจ่ายประจำเดือน ${months[d.getMonth()]} ${d.getFullYear()+543}`;
+        document.getElementById('web-title-month').textContent = textStr;
+        document.getElementById('pdf-month-title').textContent = `รายงานสรุปยอดรายจ่ายประจำเดือน ${months[d.getMonth()]} ${d.getFullYear()+543}`;
     }
 
-    // 🔒 ฟังก์ชันเช็กเงื่อนไขวันสิ้นเดือน + บังคับล้างกระดานก่อนบันทึกใหม่ตามสวิตช์น้าคัดเลือก
     function checkAndLockStatus() {
         const today = new Date();
         const tomorrow = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
@@ -345,19 +378,13 @@
         const banner = document.getElementById('end-of-month-banner');
         const wrapper = document.getElementById('form-inner-wrapper');
 
-        // เงื่อนไข: ถ้าเป็นวันสิ้นเดือน และกระดานคลาวด์ยังมีประวัติค้างอยู่ (ตารางไม่ว่าง)
         if (isLastDay && expenses.length > 0) {
             banner.style.display = 'block';
             if (wrapper) {
                 wrapper.innerHTML = `<p style="color:var(--danger); font-weight:bold; text-align:center; padding:25px; border:2px dashed var(--danger); border-radius:14px; background:#fff5f5; margin:0;">🔒 ระบบล็อกการบันทึกชั่วคราว!<br>เนื่องจากวันนี้เป็นวันสิ้นเดือน กรุณากดปุ่มเปิดโหมดแก้ไขแล้วทำการ 'ล้างประวัติขึ้นเดือนใหม่' ด้านบนก่อน เพื่อเคลียร์ระบบให้พร้อมรับข้อมูลรอบใหม่ค่ะ</p>`;
             }
         } else {
-            // ถ้าระบบโดนล้างจนเกลี้ยงแล้ว หรือไม่ใช่วันสิ้นเดือน ให้เปิดให้บันทึกปกติ
             banner.style.display = isLastDay ? 'block' : 'none';
-            if (wrapper && !document.getElementById('expense-form')) {
-                // สร้างฟอร์มคืนกลับมาถ้าระบบว่างเปล่า
-                location.reload(); // รีโหลดสั้นๆ เพื่อคืนฟอร์มเดิมกลับมาให้อย่างแม่นยำ
-            }
         }
     }
 
@@ -470,26 +497,104 @@
         database.ref('cute_expenses/' + id).remove().then(() => { showMsg('ลบแล้ว 🗑️'); });
     }
 
-    function downloadPDFReport() {
-        showMsg('กำลังจัดทำไฟล์ PDF สักครู่ค่าน้า...');
-        const hideElements = document.querySelectorAll('.pdf-hide, #th-manage');
-        hideElements.forEach(el => el.style.display = 'none');
+    // 🏛️ ฟังก์ชันสร้างโครงร่างและพิมพ์ PDF แบบแยกชื่อคนจ่ายระดับมืออาชีพ
+    function generateProfessionalPDF() {
+        if (expenses.length === 0) {
+            alert("❌ ไม่สามารถออกรายงานได้เนื่องจากไม่มีข้อมูลบันทึกในเดือนนี้ค่ะ");
+            return;
+        }
+
+        showMsg('กำลังจัดเรียงข้อมูลบัญชีแยกคนลงไฟล์ PDF...');
+
+        // 1. ตั้งค่าหัวเอกสารสรุปยอด
+        document.getElementById('pdf-print-date').textContent = new Date().toLocaleDateString('th-TH', {day:'numeric', month:'long', year:'numeric'});
+        document.getElementById('pdf-total-items').textContent = expenses.length;
         
-        const element = document.getElementById('pdf-report-area');
+        let grandTotal = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+        document.getElementById('pdf-grand-total-text').textContent = grandTotal.toLocaleString('th-TH', {minimumFractionDigits: 2});
+
+        // 2. จัดกลุ่มข้อมูล (Group by Payer)
+        const groups = {};
+        // ใส่ 'ร้าน' เป็นอันดับแรก
+        groups['ร้าน'] = [];
+        // ใส่รายชื่อทุกคนที่มีในระบบ
+        payers.forEach(name => groups[name] = []);
+        
+        // จำแนกรายจ่ายลงกล่องของแต่ละคน
+        expenses.forEach(exp => {
+            if (!groups[exp.payer]) { groups[exp.payer] = []; }
+            groups[exp.payer].push(exp);
+        });
+
+        // 3. ประกอบหน้าเอกสาร HTML สำหรับพิมพ์ในตู้ซ่อน
+        const container = document.getElementById('pdf-sections-content');
+        container.innerHTML = ''; // ล้างขยะเดิมออกก่อน
+
+        Object.keys(groups).forEach(payerName => {
+            const list = groups[payerName];
+            if (list.length === 0) return; // ถ้าคนนี้ไม่มีรายการจ่ายเลยในเดือนนี้ ให้ข้ามไป ไม่ต้องโชว์ใน PDF
+
+            let subTotal = list.reduce((sum, item) => sum + item.amount, 0);
+
+            // สร้างบล็อกหัวข้อของคนนี้
+            const section = document.createElement('div');
+            section.className = 'pdf-payer-section';
+
+            let tableRowsHTML = '';
+            list.forEach(item => {
+                let formattedDate = '-';
+                if (item.date) {
+                    const d = new Date(item.date);
+                    formattedDate = d.toLocaleDateString('th-TH', {day: '2-digit', month: 'short', year: '2-digit'}).replace('พ.ศ. ','');
+                }
+                tableRowsHTML += `
+                    <tr>
+                        <td style="width: 20%; font-weight: bold;">${formattedDate}</td>
+                        <td>${item.title}</td>
+                        <td style="width: 25%; text-align: right; font-weight: bold;">${item.amount.toLocaleString('th-TH', {minimumFractionDigits: 2})}</td>
+                    </tr>
+                `;
+            });
+
+            section.innerHTML = `
+                <div class="pdf-payer-title">
+                    <span>👤 รายการจ่ายของ: ${payerName}</span>
+                </div>
+                <table class="pdf-table">
+                    <thead>
+                        <tr>
+                            <th>📅 วันที่</th>
+                            <th>📝 รายการรายจ่าย</th>
+                            <th style="text-align: right;">💵 ยอดเงิน (บาท)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${tableRowsHTML}
+                    </tbody>
+                </table>
+                <div class="pdf-table-footer">
+                    รวมยอดเงินทั้งหมดของ ${payerName}: <span style="color:#d95d26;">${subTotal.toLocaleString('th-TH', {minimumFractionDigits: 2})}</span> บาท
+                </div>
+            `;
+            container.appendChild(section);
+        });
+
+        // 4. สั่งดาวน์โหลดแปลงตู้ซ่อนนี้ให้กลายเป็นเอกสาร PDF สุภาพทางบัญชี
+        const element = document.getElementById('pdf-export-container');
+        element.style.display = 'block'; // เปิดชั่วคราวให้สคริปต์มองเห็นโครงสร้าง
+
         const opt = {
-            margin:       10,
-            filename:     `สรุปยอดบัญชีรายจ่าย_${new Date().toLocaleDateString('th-TH')}.pdf`,
+            margin:       12,
+            filename:     `รายงานสรุปยอดบัญชีรายจ่ายแยกบุคคล_${new Date().toLocaleDateString('th-TH')}.pdf`,
             image:        { type: 'jpeg', quality: 0.98 },
             html2canvas:  { scale: 2, useCORS: true },
             jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
         html2pdf().set(opt).from(element).save().then(() => {
-            const thManage = document.getElementById('th-manage');
-            if (thManage) thManage.style.display = isEditMode ? 'table-cell' : 'none';
-            renderTable();
-            hasDownloadedPDF = true; 
-            alert("📥 ดาวน์โหลด PDF สำเร็จแล้วค่ะ! ระบบพร้อมเปิดสิทธิ์ให้กดปุ่ม 'ล้างประวัติขึ้นเดือนใหม่' เพื่อรีเซ็ตรองรับการบันทึกรอบถัดไปแล้วค่ะ");
+            element.style.display = 'none'; // โหลดเสร็จแล้วซ่อนกลับเหมือนเดิม
+            hasDownloadedPDF = true; // เปิดสิทธิ์ปุ่มเคลียร์ระบบคลาวด์
+            alert("📥 ผลิตรายงานแยกบุคคลแบบเป็นทางการเป็น PDF สำเร็จเรียบร้อยแล้วค่ะน้า!");
         });
     }
 
@@ -505,7 +610,7 @@
                 database.ref('cute_expenses').remove().then(() => {
                     hasDownloadedPDF = false; 
                     alert("🗑️ เคลียร์ประวัติคลาวด์เสร็จสิ้น! บล็อกวันสิ้นเดือนปลดล็อกเรียบร้อย พร้อมเริ่มคีย์ข้อมูลเดือนใหม่แล้วค่ะ 🍊");
-                    location.reload(); // รีเฟรชหน้าจอเพื่อดึงฟอร์มเปล่าสำหรับเดือนใหม่ขึ้นมาแสดงผลทันที
+                    location.reload(); 
                 });
             } else {
                 alert("❌ ข้อความยืนยันไม่ถูกต้อง ยกเลิกการลบให้ค่ะ");
