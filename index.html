@@ -675,11 +675,14 @@ function renderSummary() {
 
         card.innerHTML = `
             <h3>
-                <span>👤 ${name} <span class="search-icon">🔍</span></span>
+                <span>👤 ${name}
+                <span class="search-icon">🔍</span></span>
                 ${delBtn}
             </h3>
             <div class="amount">
-                ${person[name].toLocaleString('th-TH',{minimumFractionDigits:2})}
+                ${person[name].toLocaleString('th-TH',{
+                    minimumFractionDigits:2
+                })}
                 <span class="currency">บาท</span>
             </div>
         `;
@@ -695,8 +698,8 @@ function renderSummary() {
 
         box.appendChild(card);
     });
+
 }
-    }
 
     function viewImage(img) { if (!img) return; document.getElementById('modal-img').src = img; document.getElementById('image-modal').style.display = 'flex'; }
 
