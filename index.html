@@ -152,7 +152,7 @@
         <h2>🔐 เข้าใช้งานระบบบันทึกรายจ่าย</h2>
         <div class="form-group">
             <label>📧 อีเมลประจำตัวผู้ใช้</label>
-            <input type="email" id="login-email" placeholder="customer123@gmail.com" required>
+            <input type="email" id="login-email" placeholder="ระบุอีเมลของคุณ" required>
         </div>
         <div class="form-group">
             <label>🔑 รหัสผ่านเข้าเว็บ</label>
@@ -172,7 +172,7 @@
         <button id="header-key-btn" class="btn-key-header-corner" onclick="promptChangePassword()">🔑</button>
         <div class="web-header-text">
             <h1 id="web-title-month">บันทึกรายจ่ายประจำเดือน</h1>
-            <p>ระบบเชื่อมคลาวด์ออนไลน์ สรุปยอดเรียลไทม์ และล็อควันสิ้นเดือนอัตโนมัติ</p>
+            <p>หากต้องการแก้ไข กดปุ่ม "เปิดโหมดแก้ไข"</p>
         </div>
         <div class="header-actions">
             <button id="edit-toggle-btn" class="btn-toggle-edit" onclick="toggleEditMode()">⚙️ เปิดโหมดแก้ไข</button>
@@ -223,7 +223,7 @@
             <h2>👤 เพิ่มรายชื่อคนจ่าย (<span id="payer-count">0</span>/20)</h2>
             <div class="form-group">
                 <div class="name-manager">
-                    <input type="text" id="new-name" placeholder="ใส่ชื่อ เช่น คนสวย">
+                    <input type="text" id="new-name" placeholder="ใส่ชื่อเช่น คนสวย">
                     <button class="btn" onclick="addPayerName()">✨ เพิ่มชื่อ</button>
                 </div>
             </div>
@@ -272,7 +272,7 @@
 <div id="pdf-export-container">
     <div class="pdf-report-header">
         <h2 id="pdf-month-title">รายงานสรุปยอดรายจ่ายประจำเดือน</h2>
-        <p>เอกสารสรุปยอดบัญชีแยกประเภทบุคคลแบบละเอียด</p>
+        <p>เอกสารสรุปยอดบัญชีแยกบุคคลแบบละเอียด</p>
     </div>
     <div class="pdf-brief-grid">
         <div class="pdf-brief-item">
@@ -487,7 +487,7 @@
         database.ref('cute_expenses/' + id).set(newExpense).then(() => {
             document.getElementById('expense-form').reset();
             setTodayDate();
-            showMsg('บันทึกสำเร็จทกเครื่องเห็นพร้อมกัน! ✅');
+            showMsg('บันทึกสำเร็จ! ✅');
         });
     }
 
@@ -502,7 +502,7 @@
             return;
         }
 
-        showMsg('กำลังจัดเรียงข้อมูลบัญชีแยกคนลงไฟล์ PDF...');
+        showMsg('กำลังจัดเรียงข้อมูลบัญชี PDF...');
 
         document.getElementById('pdf-print-date').textContent = new Date().toLocaleDateString('th-TH', {day:'numeric', month:'long', year:'numeric'});
         document.getElementById('pdf-total-items').textContent = expenses.length;
@@ -582,17 +582,17 @@
 
         html2pdf().set(opt).from(element).save().then(() => {
             element.style.display = 'none'; 
-            alert("📥 ผลิตรายงานแยกบุคคลแบบเป็นทางการเป็น PDF สำเร็จเรียบร้อยแล้วค่ะน้า!");
+            alert("📥 รายงานรายจ่ายแยกบุคคลสำเร็จเรียบร้อยแล้วแล้วค่ะ");
         });
     }
 
     // 🗑️ ฟังก์ชันล้างประวัติแบบ "ไม่ต้องพึ่งพาการดาวน์โหลด PDF ก่อน" สามารถเคลียร์ได้ทันที
     function clearMonthlyDatabase() {
-        if (confirm("⚠️ ยืนยันการล้างประวัติประจำเดือนเพื่อขึ้นรอบใหม่ใช่ไหมคะ? ข้อมูลจะถูกเซ็ตกลับเป็นศูนย์พร้อมกันทุกเครื่องทั่วโลก")) {
-            let doubleCheck = prompt("กรุณาพิมพ์คำว่า 'ยืนยันลบข้อมูล' เพื่อทำรายการเคลียร์ระบบคลาวด์:");
+        if (confirm("⚠️ ยืนยันการล้างประวัติประจำเดือนเพื่อขึ้นรอบใหม่ใช่ไหมคะ? ข้อมูลจะถูกเซ็ตกลับเป็นศูนย์พร้อมกัน")) {
+            let doubleCheck = prompt("กรุณาพิมพ์คำว่า 'ลบข้อมูล' เพื่อทำรายการเคลียร์ระบบ:");
             if (doubleCheck === 'ยืนยันลบข้อมูล') {
                 database.ref('cute_expenses').remove().then(() => {
-                    alert("🗑️ เคลียร์ประวัติคลาวด์เสร็จสิ้น! ปลดล็อกระบบเรียบร้อย พร้อมเริ่มคีย์ข้อมูลเดือนใหม่ได้ทันทีค่ะ 🍊");
+                    alert("🗑️ เคลียร์ประวัติเสร็จสิ้น! ปลดล็อกระบบเรียบร้อย พร้อมเริ่มคีย์ข้อมูลเดือนใหม่ได้ทันทีค่ะ");
                     location.reload(); 
                 });
             } else {
