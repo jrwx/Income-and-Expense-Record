@@ -854,7 +854,7 @@ if (isEditMode) {
 
     function viewImage(img) { if (!img) return; document.getElementById('modal-img').src = img; document.getElementById('image-modal').style.display = 'flex'; }
 
-    function renderTable() {
+        function renderTable() {
         const tbody = document.getElementById('expense-table-body'); const th = document.getElementById('th-manage');
         if(!tbody || !th) return; tbody.innerHTML = ''; th.style.display = isEditMode ? 'table-cell' : 'none';
         
@@ -867,21 +867,22 @@ if (isEditMode) {
                 const d = new Date(exp.date); 
                 formattedDate = d.toLocaleDateString('th-TH', {day: '2-digit', month: 'short', year: '2-digit'}).replace('พ.ศ. ',''); 
             }
+            // แก้ไขเรียงลำดับ <td> ให้ตรงกับ <th> ด้านบนทั้งหมด 8 คอลัมน์พอดี
             tr.innerHTML = `
-                <td><strong>${formattedDate}</strong></td><td><strong>${exp.title}</strong></td><td><span class="${payerClass}">${exp.payer}</span></td>
+                <td><strong>${formattedDate}</strong></td>
+                <td><strong>${exp.title}</strong></td>
+                <td><span class="${payerClass}">${exp.payer}</span></td>
                 <td style="font-weight: bold; color: #d95d26;">${exp.amount.toLocaleString('th-TH', {minimumFractionDigits:2})}</td>
-                <td class="pdf-hide">${exp.slip ? `<img src="${exp.slip}" class="img-preview" onclick="viewImage('${exp.slip}')">` : '-'}</td>
-                <td>
-${exp.billStatus || 'ไม่มีบิล'}
-</td>
-                <td class="pdf-hide">${exp.receipt ? `<img src="${exp.receipt}" class="img-preview" onclick="viewImage('${exp.receipt}')">` : '-'}</td>
+                <td>${exp.slip ? `<img src="${exp.slip}" class="img-preview" onclick="viewImage('${exp.slip}')">` : '-'}</td>
+                <td>${exp.receipt ? `<img src="${exp.receipt}" class="img-preview" onclick="viewImage('${exp.receipt}')">` : '-'}</td>
+                <td><span style="font-weight: bold;">${exp.billStatus || 'ไม่มีบิล'}</span></td>
                 <td style="display: ${isEditMode ? 'table-cell' : 'none'};"><button class="btn" style="background:var(--danger); padding: 5px 12px; font-size: 0.85rem; border-radius: 10px;" onclick="deleteExpense(${exp.id})">ลบ</button></td>
             `;
             tbody.appendChild(tr);
         });
-        if (displayedExpenses.length === 0) { tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:30px; color: var(--text-muted);">ยังไม่มีข้อมูลบันทึกในเดือนนี้ค่ะ 🍊</td></tr>`; }
+        // ปรับจำนวน colspan ให้เป็น 8 เพื่อให้คลุมครบทุกคอลัมน์เวลาไม่มีข้อมูล
+        if (displayedExpenses.length === 0) { tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:30px; color: var(--text-muted);">ยังไม่มีข้อมูลบันทึกในเดือนนี้ค่ะ 🍊</td></tr>`; }
     }
-
     function renderAll() { renderSummary(); renderTable(); }
 </script>
 
