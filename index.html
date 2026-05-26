@@ -172,7 +172,7 @@
         <button id="header-key-btn" class="btn-key-header-corner" onclick="promptChangePassword()">🔑</button>
         <div class="web-header-text">
             <h1 id="web-title-month">บันทึกรายจ่ายประจำเดือน</h1>
-            <p>หากต้องการแก้ไข กดปุ่ม "เปิดโหมดแก้ไข"</p>
+            <p>ระบบเชื่อมคลาวด์ออนไลน์ สรุปยอดเรียลไทม์ และล็อควันสิ้นเดือนอัตโนมัติ</p>
         </div>
         <div class="header-actions">
             <button id="edit-toggle-btn" class="btn-toggle-edit" onclick="toggleEditMode()">⚙️ เปิดโหมดแก้ไข</button>
@@ -210,7 +210,7 @@
                         <th style="width: 20%">ยอดเงิน</th>
                         <th style="width: 10%">สลิป</th>
                         <th style="width: 10%">ใบเสร็จ</th>
-                        <th id="th-manage" style="width: 10%;">จัดการ</th>
+                        <th id="th-manage" style="width: 10%;">⚙️ จัดการ</th>
                     </tr>
                 </thead>
                 <tbody id="expense-table-body"></tbody>
@@ -311,7 +311,6 @@
     let expenses = [];
     let isEditMode = false;
     let currentFilterPayer = 'all';
-    let hasDownloadedPDF = false; 
 
     function checkLogin() {
         const emailInput = document.getElementById('login-email').value.trim();
@@ -497,7 +496,6 @@
         database.ref('cute_expenses/' + id).remove().then(() => { showMsg('ลบแล้ว 🗑️'); });
     }
 
-    // 🏛️ ฟังก์ชันสร้างโครงร่างและพิมพ์ PDF แบบแยกชื่อคนจ่ายระดับมืออาชีพ
     function generateProfessionalPDF() {
         if (expenses.length === 0) {
             alert("❌ ไม่สามารถออกรายงานได้เนื่องจากไม่มีข้อมูลบันทึกในเดือนนี้ค่ะ");
@@ -506,37 +504,29 @@
 
         showMsg('กำลังจัดเรียงข้อมูลบัญชีแยกคนลงไฟล์ PDF...');
 
-        // 1. ตั้งค่าหัวเอกสารสรุปยอด
         document.getElementById('pdf-print-date').textContent = new Date().toLocaleDateString('th-TH', {day:'numeric', month:'long', year:'numeric'});
         document.getElementById('pdf-total-items').textContent = expenses.length;
         
         let grandTotal = expenses.reduce((sum, exp) => sum + exp.amount, 0);
         document.getElementById('pdf-grand-total-text').textContent = grandTotal.toLocaleString('th-TH', {minimumFractionDigits: 2});
 
-        // 2. จัดกลุ่มข้อมูล (Group by Payer)
         const groups = {};
-        // ใส่ 'ร้าน' เป็นอันดับแรก
         groups['ร้าน'] = [];
-        // ใส่รายชื่อทุกคนที่มีในระบบ
         payers.forEach(name => groups[name] = []);
         
-        // จำแนกรายจ่ายลงกล่องของแต่ละคน
         expenses.forEach(exp => {
             if (!groups[exp.payer]) { groups[exp.payer] = []; }
             groups[exp.payer].push(exp);
         });
 
-        // 3. ประกอบหน้าเอกสาร HTML สำหรับพิมพ์ในตู้ซ่อน
         const container = document.getElementById('pdf-sections-content');
-        container.innerHTML = ''; // ล้างขยะเดิมออกก่อน
+        container.innerHTML = ''; 
 
         Object.keys(groups).forEach(payerName => {
             const list = groups[payerName];
-            if (list.length === 0) return; // ถ้าคนนี้ไม่มีรายการจ่ายเลยในเดือนนี้ ให้ข้ามไป ไม่ต้องโชว์ใน PDF
+            if (list.length === 0) return; 
 
             let subTotal = list.reduce((sum, item) => sum + item.amount, 0);
-
-            // สร้างบล็อกหัวข้อของคนนี้
             const section = document.createElement('div');
             section.className = 'pdf-payer-section';
 
@@ -579,9 +569,8 @@
             container.appendChild(section);
         });
 
-        // 4. สั่งดาวน์โหลดแปลงตู้ซ่อนนี้ให้กลายเป็นเอกสาร PDF สุภาพทางบัญชี
         const element = document.getElementById('pdf-export-container');
-        element.style.display = 'block'; // เปิดชั่วคราวให้สคริปต์มองเห็นโครงสร้าง
+        element.style.display = 'block'; 
 
         const opt = {
             margin:       12,
@@ -592,24 +581,18 @@
         };
 
         html2pdf().set(opt).from(element).save().then(() => {
-            element.style.display = 'none'; // โหลดเสร็จแล้วซ่อนกลับเหมือนเดิม
-            hasDownloadedPDF = true; // เปิดสิทธิ์ปุ่มเคลียร์ระบบคลาวด์
+            element.style.display = 'none'; 
             alert("📥 ผลิตรายงานแยกบุคคลแบบเป็นทางการเป็น PDF สำเร็จเรียบร้อยแล้วค่ะน้า!");
         });
     }
 
+    // 🗑️ ฟังก์ชันล้างประวัติแบบ "ไม่ต้องพึ่งพาการดาวน์โหลด PDF ก่อน" สามารถเคลียร์ได้ทันที
     function clearMonthlyDatabase() {
-        if (!hasDownloadedPDF) {
-            alert("❌ ปฏิเสธการคำขอ! น้าต้องกดปุ่ม '📥 โหลดรายงาน PDF' เก็บเป็นหลักฐานในเครื่องก่อน ถึงจะกดเคลียร์ฐานข้อมูลคลาวด์ได้ค่ะ");
-            return;
-        }
-
         if (confirm("⚠️ ยืนยันการล้างประวัติประจำเดือนเพื่อขึ้นรอบใหม่ใช่ไหมคะ? ข้อมูลจะถูกเซ็ตกลับเป็นศูนย์พร้อมกันทุกเครื่องทั่วโลก")) {
             let doubleCheck = prompt("กรุณาพิมพ์คำว่า 'ยืนยันลบข้อมูล' เพื่อทำรายการเคลียร์ระบบคลาวด์:");
             if (doubleCheck === 'ยืนยันลบข้อมูล') {
                 database.ref('cute_expenses').remove().then(() => {
-                    hasDownloadedPDF = false; 
-                    alert("🗑️ เคลียร์ประวัติคลาวด์เสร็จสิ้น! บล็อกวันสิ้นเดือนปลดล็อกเรียบร้อย พร้อมเริ่มคีย์ข้อมูลเดือนใหม่แล้วค่ะ 🍊");
+                    alert("🗑️ เคลียร์ประวัติคลาวด์เสร็จสิ้น! ปลดล็อกระบบเรียบร้อย พร้อมเริ่มคีย์ข้อมูลเดือนใหม่ได้ทันทีค่ะ 🍊");
                     location.reload(); 
                 });
             } else {
