@@ -100,20 +100,26 @@
 
         input, select { width: 100%; height: 48px; padding: 0 14px; border: 2px solid var(--border-color); border-radius: 14px; box-sizing: border-box; font-size: 1rem; font-family: inherit; color: var(--text-main); background-color: #fffdfb; }
         input[type="date"]{
-            appearance:none;
-            -webkit-appearance:none;
-            height:48px;
-            min-height:48px;
-            line-height:48px;
-            padding:0 14px;
-            border:2px solid var(--border-color);
-            border-radius:14px;
-            box-sizing:border-box;
-            font-size:1rem;
-            font-family:inherit;
-            background:#fffdfb;
-            color:var(--text-main);
-        }
+    appearance:none;
+    -webkit-appearance:none;
+
+    height:48px;
+    min-height:48px;
+    line-height:48px;
+
+    padding:0 14px;
+
+    border:2px solid var(--border-color);
+    border-radius:14px;
+
+    box-sizing:border-box;
+
+    font-size:1rem;
+    font-family:inherit;
+
+    background:#fffdfb;
+    color:var(--text-main);
+}
         .flex-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         
         @media (max-width: 600px) { .flex-inputs { grid-template-columns: 1fr !important; } }
@@ -122,11 +128,6 @@
         .name-manager { display: flex; gap: 10px; }
         .name-manager input { flex: 1; }
         .name-manager .btn { width: auto; white-space: nowrap; height: 48px; }
-
-        /* การตกแต่งส่วนตัวเลือกวิทยุ (Radio Options สำหรับบิล) */
-        .bill-radio-group { display: flex; gap: 20px; align-items: center; padding: 5px 0; }
-        .bill-radio-label { display: flex; align-items: center; gap: 8px; font-weight: bold; cursor: pointer; font-size: 1rem; color: var(--text-main); }
-        .bill-radio-label input[type="radio"] { width: 20px; height: 20px; cursor: pointer; accent-color: var(--primary); margin: 0; }
         
         /* ส่วนตารางประวัติบนหน้าเว็บ */
         .table-section { background: var(--card-bg); padding: 25px; border-radius: 24px; box-shadow: 0 8px 16px -4px rgba(255, 122, 60, 0.06); border: 2px solid var(--border-color); margin-bottom: 20px; }
@@ -138,10 +139,6 @@
         
         .badge-payer { background: #ffe8cc; color: #d9480f; padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; }
         .badge-shop { background: #fff3bf; color: #f59e0b; }
-        .badge-bill { padding: 4px 10px; border-radius: 12px; font-size: 0.85rem; font-weight: bold; }
-        .badge-bill.has-bill { background: #e6fcf5; color: #0ca678; }
-        .badge-bill.no-bill { background: #fff5f5; color: #fa5252; }
-        
         .img-preview { width: 45px; height: 45px; border-radius: 10px; cursor: pointer; object-fit: cover; border: 2px solid var(--border-color); }
         .modal { display: none; position: fixed; z-index: 1000; top: 0; left: 0; width: 100%; height: 100%; background: rgba(43, 30, 29, 0.85); justify-content: center; align-items: center; }
         .modal img { max-width: 85%; max-height: 85%; border-radius: 16px; border: 4px solid white; }
@@ -228,13 +225,12 @@
             <table>
                 <thead>
                     <tr>
-                        <th style="width: 12%">📅 วันที่</th>
+                        <th style="width: 15%">📅 วันที่</th>
                         <th>รายการ</th>
-                        <th style="width: 12%">คนจ่าย</th>
-                        <th style="width: 13%">ประเภทบิล</th>
-                        <th style="width: 18%">ยอดเงิน</th>
-                        <th style="width: 9%">สลิป</th>
-                        <th style="width: 9%">ใบเสร็จ</th>
+                        <th style="width: 15%">คนจ่าย</th>
+                        <th style="width: 20%">ยอดเงิน</th>
+                        <th style="width: 10%">สลิป</th>
+                        <th style="width: 10%">ใบเสร็จ</th>
                         <th id="th-manage" style="width: 10%;">⚙️ จัดการ</th>
                     </tr>
                 </thead>
@@ -271,17 +267,6 @@
                     <div class="form-group">
                         <label>✏️ รายการ / ค่าใช้จ่ายอะไร</label>
                         <input type="text" id="exp-title" placeholder="เช่น ค่าของเข้าร้าน" required>
-                    </div>
-                    <div class="form-group">
-                        <label>📑 ข้อมูลสถานะบิล</label>
-                        <div class="bill-radio-group">
-                            <label class="bill-radio-label">
-                                <input type="radio" name="exp-bill-status" value="มีบิล" checked> 🧾 มีบิล
-                            </label>
-                            <label class="bill-radio-label">
-                                <input type="radio" name="exp-bill-status" value="ไม่มีบิล"> ❌ ไม่มีบิล
-                            </label>
-                        </div>
                     </div>
                     <div class="form-group">
                         <label>💵 จำนวนเงิน (บาท)</label>
@@ -342,21 +327,16 @@
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    // 📧 อัปเดตรายชื่ออีเมลที่ได้รับสิทธิ์ตามคำสั่งเรียบร้อยครับ
-    let allowedEmails = ["m.mookkmookk@gmail.com", "ambercup.uth@gmail.com"]; 
+    let allowedEmail = "M.mookkmokk@gmail.com"; 
     let payers = [];
     let expenses = [];
     let isEditMode = false;
     let currentFilterPayer = 'all';
 
     function checkLogin() {
-        const emailInput = document.getElementById('login-email').value.trim().toLowerCase();
+        const emailInput = document.getElementById('login-email').value.trim();
         const passInput = document.getElementById('login-pass').value.trim();
-        
-        if (!allowedEmails.includes(emailInput)) { 
-            alert("❌ อีเมลนี้ไม่มีสิทธิ์เข้าใช้งานค่ะ"); 
-            return; 
-        }
+        if (emailInput !== allowedEmail) { alert("❌ อีเมลนี้ไม่มีสิทธิ์เข้าใช้งานค่ะ"); return; }
 
         database.ref('web_password').once('value').then((snapshot) => {
             let correctPassword = snapshot.val() || "1234";
@@ -386,10 +366,14 @@
         updateWebTitleWithCurrentMonth();
 
         database.ref('cute_payers').on('value', (snapshot) => {
-            payers = (snapshot.val() || []).filter(name => name);
-            updatePayerDropdown();
-            renderAll();
-        });
+
+    payers = (snapshot.val() || [])
+        .filter(name => name);
+
+    updatePayerDropdown();
+    renderAll();
+
+});
 
         database.ref('cute_expenses').on('value', (snapshot) => {
             const data = snapshot.val() || {};
@@ -466,16 +450,23 @@
         showMsg('เพิ่มรายชื่อสำเร็จ ✨');
     }
 
-    function deletePayer(name) {
-        if (!confirm(`คุณแน่ใจใช่ไหมว่าจะลบชื่อ "${name}" ออก?`)) return;
-        const newPayers = payers.filter(p => p && p !== name);
-        database.ref('cute_payers').set(newPayers).then(() => {
+function deletePayer(name) {
+
+    if (!confirm(`คุณแน่ใจใช่ไหมว่าจะลบชื่อ "${name}" ออก?`)) return;
+
+    const newPayers = payers.filter(p => p && p !== name);
+
+    database.ref('cute_payers')
+        .set(newPayers)
+        .then(() => {
+
             if (currentFilterPayer === name) {
                 currentFilterPayer = 'all';
             }
+
             showMsg('ลบแล้ว 🗑️');
         });
-    }
+}
 
     function updatePayerDropdown() {
         const select = document.getElementById('exp-payer');
@@ -518,9 +509,6 @@
         showMsg('กำลังส่งข้อมูลเรียลไทม์...');
         const slipFile = document.getElementById('exp-slip').files[0];
         const receiptFile = document.getElementById('exp-receipt').files[0];
-        
-        // 📑 ดึงค่าสถานะวิทยุ "มีบิล" หรือ "ไม่มีบิล"
-        const billStatus = document.querySelector('input[name="exp-bill-status"]:checked').value;
         const id = Date.now();
 
         const slip = await compressImageFile(slipFile);
@@ -529,14 +517,12 @@
         const newExpense = {
             id, date: document.getElementById('exp-date').value,
             payer: document.getElementById('exp-payer').value,
-            title, amount, slip, receipt, billStatus: billStatus // เซฟลงคลาวด์คีย์ข้อมูล
+            title, amount, slip, receipt
         };
 
         database.ref('cute_expenses/' + id).set(newExpense).then(() => {
             document.getElementById('expense-form').reset();
             setTodayDate();
-            // รีเซ็ตสถานะวิทยุให้กลับมาเลือก "มีบิล" เป็นมาตรฐาน
-            document.querySelector('input[name="exp-bill-status"][value="มีบิล"]').checked = true;
             showMsg('บันทึกสำเร็จ! ✅');
         });
     }
@@ -587,16 +573,11 @@
                     const d = new Date(item.date);
                     formattedDate = d.toLocaleDateString('th-TH', {day: '2-digit', month: 'short', year: '2-digit'}).replace('พ.ศ. ','');
                 }
-                
-                // สรุปสถานะบิลเพื่อนำลงไฟล์เอกสารรายงาน PDF
-                const currentBillStatus = item.billStatus || "มีบิล"; 
-
                 tableRowsHTML += `
                     <tr>
-                        <td style="width: 15%; font-weight: bold;">${formattedDate}</td>
+                        <td style="width: 20%; font-weight: bold;">${formattedDate}</td>
                         <td>${item.title}</td>
-                        <td style="width: 18%; text-align: center; font-weight: bold;">${currentBillStatus}</td>
-                        <td style="width: 22%; text-align: right; font-weight: bold;">${item.amount.toLocaleString('th-TH', {minimumFractionDigits: 2})}</td>
+                        <td style="width: 25%; text-align: right; font-weight: bold;">${item.amount.toLocaleString('th-TH', {minimumFractionDigits: 2})}</td>
                     </tr>
                 `;
             });
@@ -610,7 +591,6 @@
                         <tr>
                             <th>📅 วันที่</th>
                             <th>📝 รายการรายจ่าย</th>
-                            <th style="text-align: center;">📑 สถานะบิล</th>
                             <th style="text-align: right;">💵 ยอดเงิน (บาท)</th>
                         </tr>
                     </thead>
@@ -675,66 +655,92 @@
         }
     }
 
-    function renderSummary() {
-        let grand = 0;
-        let shop = 0;
-        const person = {};
+function renderSummary() {
+    let grand = 0;
+    let shop = 0;
+    const person = {};
 
-        payers.forEach(p => person[p] = 0);
+    payers.forEach(p => person[p] = 0);
 
-        expenses.forEach(exp => {
-            grand += exp.amount;
-            if (exp.payer === 'ร้าน') {
-                shop += exp.amount;
-            }
-            else if (payers.includes(exp.payer)) {
-                person[exp.payer] += exp.amount;
-            }
-        });
+    expenses.forEach(exp => {
+    grand += exp.amount;
 
-        document.getElementById('grand-total').innerHTML =
-            `${grand.toLocaleString('th-TH',{minimumFractionDigits:2})} <span class="currency">บาท</span>`;
-
-        document.getElementById('shop-total').innerHTML =
-            `${shop.toLocaleString('th-TH',{minimumFractionDigits:2})} <span class="currency">บาท</span>`;
-
-        const box = document.getElementById('dynamic-person-boxes');
-        box.innerHTML = '';
-
-        Object.keys(person).forEach(name => {
-            const card = document.createElement('div');
-            card.className = 'card person clickable';
-
-            card.addEventListener('click', () => {
-                filterByPayer(name);
-            });
-
-            card.innerHTML = `
-            <h3>
-                <span>
-                    👤 ${name}
-                    <span class="search-icon">🔍</span>
-                </span>
-                ${isEditMode ? `<button class="btn-del-payer" style="display:flex">✕</button>` : ''}
-            </h3>
-            <div class="amount">
-            ${person[name].toLocaleString('th-TH', { minimumFractionDigits:2 })}
-            <span class="currency">บาท</span>
-            </div>
-            `;
-
-            if (isEditMode) {
-                const delBtn = card.querySelector('.btn-del-payer');
-                if (delBtn) {
-                    delBtn.addEventListener('click', (e)=>{
-                        e.stopPropagation();
-                        deletePayer(name);
-                    });
-                }
-            }
-            box.appendChild(card);
-        });
+    if (exp.payer === 'ร้าน') {
+        shop += exp.amount;
     }
+    else if (payers.includes(exp.payer)) {
+        person[exp.payer] += exp.amount;
+    }
+});
+
+    document.getElementById('grand-total').innerHTML =
+        `${grand.toLocaleString('th-TH',{minimumFractionDigits:2})} <span class="currency">บาท</span>`;
+
+    document.getElementById('shop-total').innerHTML =
+        `${shop.toLocaleString('th-TH',{minimumFractionDigits:2})} <span class="currency">บาท</span>`;
+
+    const box = document.getElementById('dynamic-person-boxes');
+    box.innerHTML = '';
+
+    Object.keys(person).forEach(name => {
+
+        const card = document.createElement('div');
+card.className = 'card person clickable';
+
+card.addEventListener('click', () => {
+    filterByPayer(name);
+});
+
+card.innerHTML = `
+<h3>
+    <span>
+        👤 ${name}
+        <span class="search-icon">🔍</span>
+    </span>
+
+    ${
+        isEditMode
+        ? `<button class="btn-del-payer" style="display:flex">✕</button>`
+        : ''
+    }
+
+</h3>
+
+<div class="amount">
+${person[name].toLocaleString(
+'th-TH',
+{ minimumFractionDigits:2 }
+)}
+<span class="currency">บาท</span>
+</div>
+`;
+
+if (isEditMode) {
+
+    const delBtn =
+        card.querySelector('.btn-del-payer');
+
+    if (delBtn) {
+
+        delBtn.addEventListener(
+            'click',
+            (e)=>{
+
+                e.stopPropagation();
+
+                deletePayer(name);
+
+            }
+        );
+
+    }
+
+}
+
+        box.appendChild(card);
+    });
+
+}
 
     function viewImage(img) { if (!img) return; document.getElementById('modal-img').src = img; document.getElementById('image-modal').style.display = 'flex'; }
 
@@ -751,16 +757,8 @@
                 const d = new Date(exp.date); 
                 formattedDate = d.toLocaleDateString('th-TH', {day: '2-digit', month: 'short', year: '2-digit'}).replace('พ.ศ. ',''); 
             }
-            
-            // 🏷️ การประมวลผลการแสดงผลของประเภทสถานะบิลบนหน้าเว็บตารางรายจ่าย
-            const billText = exp.billStatus || "มีบิล"; 
-            const billBadgeClass = billText === "มีบิล" ? "badge-bill has-bill" : "badge-bill no-bill";
-
             tr.innerHTML = `
-                <td><strong>${formattedDate}</strong></td>
-                <td><strong>${exp.title}</strong></td>
-                <td><span class="${payerClass}">${exp.payer}</span></td>
-                <td><span class="${billBadgeClass}">${billText}</span></td>
+                <td><strong>${formattedDate}</strong></td><td><strong>${exp.title}</strong></td><td><span class="${payerClass}">${exp.payer}</span></td>
                 <td style="font-weight: bold; color: #d95d26;">${exp.amount.toLocaleString('th-TH', {minimumFractionDigits:2})}</td>
                 <td class="pdf-hide">${exp.slip ? `<img src="${exp.slip}" class="img-preview" onclick="viewImage('${exp.slip}')">` : '-'}</td>
                 <td class="pdf-hide">${exp.receipt ? `<img src="${exp.receipt}" class="img-preview" onclick="viewImage('${exp.receipt}')">` : '-'}</td>
@@ -768,7 +766,7 @@
             `;
             tbody.appendChild(tr);
         });
-        if (displayedExpenses.length === 0) { tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:30px; color: var(--text-muted);">ยังไม่มีข้อมูลบันทึกในเดือนนี้ค่ะ 🍊</td></tr>`; }
+        if (displayedExpenses.length === 0) { tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:30px; color: var(--text-muted);">ยังไม่มีข้อมูลบันทึกในเดือนนี้ค่ะ 🍊</td></tr>`; }
     }
 
     function renderAll() { renderSummary(); renderTable(); }
