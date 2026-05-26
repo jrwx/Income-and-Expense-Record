@@ -143,6 +143,11 @@
         .pdf-table th { background-color: #f2f2f2; color: #222; font-weight: bold; border: 1px solid #ccc; padding: 8px 10px; text-align: left; box-shadow: none; position: static; }
         .pdf-table td { border: 1px solid #ccc; padding: 8px 10px; color: #333; background: #fff; }
         .pdf-table-footer { text-align: right; font-size: 14px; font-weight: bold; padding: 8px; background: #fafafa; border: 1px solid #ccc; border-top: none; }
+        
+        /* ปุ่มเซฟไฟล์เฉพาะบนรายงาน PDF */
+        .pdf-save-action-wrapper { text-align: center; margin-bottom: 20px; }
+        .btn-pdf-download-now { background-color: #2ec4b6; color: white; border: none; padding: 12px 30px; border-radius: 50px; font-size: 1.1rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(46, 196, 182, 0.3); transition: all 0.2s; }
+        .btn-pdf-download-now:hover { background-color: #24ab9e; transform: scale(1.03); }
     </style>
 </head>
 <body>
@@ -270,6 +275,9 @@
 </div>
 
 <div id="pdf-export-container">
+    <div class="pdf-save-action-wrapper data-html2pdf-ignore">
+        <button class="btn-pdf-download-now" onclick="triggerDirectDownloadPDF()">💾 กดบันทึกไฟล์ PDF ลงเครื่องคอม/มือถือ</button>
+    </div>
     <div class="pdf-report-header">
         <h2 id="pdf-month-title">รายงานสรุปยอดรายจ่ายประจำเดือน</h2>
         <p>เอกสารสรุปยอดบัญชีแยกบุคคลแบบละเอียด</p>
@@ -284,8 +292,7 @@
             <span id="pdf-grand-total-text" style="font-size: 22px;">0.00</span> บาท
         </div>
     </div>
-    <div id="pdf-sections-content">
-        </div>
+    <div id="pdf-sections-content"></div>
 </div>
 
 <div id="image-modal" class="modal" onclick="this.style.display='none'">
@@ -548,7 +555,7 @@
 
             section.innerHTML = `
                 <div class="pdf-payer-title">
-                    <span>👤 รายการจ่ายของ: ${payerName}</span>
+                    <span>👤 รายการจ่ายของคุณ: ${payerName}</span>
                 </div>
                 <table class="pdf-table">
                     <thead>
@@ -569,28 +576,42 @@
             container.appendChild(section);
         });
 
+        // เปิดสิทธิ์แสดงพื้นที่แสดงผล PDF เพื่อให้ไลบรารีจับภาพข้อมูลได้ครบถ้วน
         const element = document.getElementById('pdf-export-container');
         element.style.display = 'block'; 
+        
+        // สั่งเลื่อนหน้าจอลงมาที่ตัวเอกสาร PDF โดยอัตโนมัติ เพื่อให้น้าเห็นปุ่มดาวน์โหลดได้ชัดเจนทันที
+        element.scrollIntoView({ behavior: 'smooth' });
+        showMsg('✨ เปิดรายงาน PDF สำเร็จ! สามารถตรวจทานและกดปุ่มเซฟลงเครื่องได้เลยค่ะ');
+    }
+
+    // 💾 ฟังก์ชันกดบันทึกไฟล์ลงเครื่องตรง ๆ (ทำงานเมื่อน้าคลิกปุ่มสีเขียวบนหน้า PDF)
+    function triggerDirectDownloadPDF() {
+        const element = document.getElementById('pdf-export-container');
+        showMsg('กำลังแพ็กไฟล์ดาวน์โหลด...');
 
         const opt = {
             margin:       12,
             filename:     `รายงานสรุปยอดบัญชีรายจ่ายแยกบุคคล_${new Date().toLocaleDateString('th-TH')}.pdf`,
             image:        { type: 'jpeg', quality: 0.98 },
             html2canvas:  { scale: 2, useCORS: true },
-            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            ignoreElements: function(el) {
+                // ระบุคลาสพิเศษเพื่อซ่อนปุ่มกดเซฟสีเขียว ไม่ให้ติดเข้าไปเลอะเทอะในแผ่นกระดาษ PDF จริง
+                return el.classList.contains('data-html2pdf-ignore');
+            }
         };
 
         html2pdf().set(opt).from(element).save().then(() => {
-            element.style.display = 'none'; 
-            alert("📥 รายงานรายจ่ายแยกบุคคลสำเร็จเรียบร้อยแล้วแล้วค่ะ");
+            alert("📥 บันทึกไฟล์รายงาน PDF ลงบนเครื่องสำเร็จเรียบร้อยแล้วค่ะน้า!");
         });
     }
 
-    // 🗑️ ฟังก์ชันล้างประวัติแบบ "ไม่ต้องพึ่งพาการดาวน์โหลด PDF ก่อน" สามารถเคลียร์ได้ทันที
+    // 🗑️ ฟังก์ชันล้างประวัติประจำเดือน
     function clearMonthlyDatabase() {
         if (confirm("⚠️ ยืนยันการล้างประวัติประจำเดือนเพื่อขึ้นรอบใหม่ใช่ไหมคะ? ข้อมูลจะถูกเซ็ตกลับเป็นศูนย์พร้อมกัน")) {
             let doubleCheck = prompt("กรุณาพิมพ์คำว่า 'ลบข้อมูล' เพื่อทำรายการเคลียร์ระบบ:");
-            if (doubleCheck === 'ยืนยันลบข้อมูล') {
+            if (doubleCheck === 'ลบข้อมูล') {
                 database.ref('cute_expenses').remove().then(() => {
                     alert("🗑️ เคลียร์ประวัติเสร็จสิ้น! ปลดล็อกระบบเรียบร้อย พร้อมเริ่มคีย์ข้อมูลเดือนใหม่ได้ทันทีค่ะ");
                     location.reload(); 
