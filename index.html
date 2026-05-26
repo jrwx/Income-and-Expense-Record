@@ -666,35 +666,57 @@ function renderSummary() {
     Object.keys(person).forEach(name => {
 
         const card = document.createElement('div');
-        card.className = 'card person clickable';
-        card.onclick = () => filterByPayer(name);
+card.className = 'card person clickable';
 
-        const delBtn = isEditMode
-            ? `<button class="btn-del-payer" style="display:flex">✕</button>`
-            : '';
+card.addEventListener('click', () => {
+    filterByPayer(name);
+});
 
-        card.innerHTML = `
-            <h3>
-                <span>👤 ${name}
-                <span class="search-icon">🔍</span></span>
-                ${delBtn}
-            </h3>
-            <div class="amount">
-                ${person[name].toLocaleString('th-TH',{
-                    minimumFractionDigits:2
-                })}
-                <span class="currency">บาท</span>
-            </div>
-        `;
+card.innerHTML = `
+<h3>
+    <span>
+        👤 ${name}
+        <span class="search-icon">🔍</span>
+    </span>
 
-        if (isEditMode) {
-            const btn = card.querySelector('.btn-del-payer');
+    ${
+        isEditMode
+        ? `<button class="btn-del-payer" style="display:flex">✕</button>`
+        : ''
+    }
 
-            btn.onclick = (e) => {
+</h3>
+
+<div class="amount">
+${person[name].toLocaleString(
+'th-TH',
+{ minimumFractionDigits:2 }
+)}
+<span class="currency">บาท</span>
+</div>
+`;
+
+if (isEditMode) {
+
+    const delBtn =
+        card.querySelector('.btn-del-payer');
+
+    if (delBtn) {
+
+        delBtn.addEventListener(
+            'click',
+            (e)=>{
+
                 e.stopPropagation();
+
                 deletePayer(name);
-            };
-        }
+
+            }
+        );
+
+    }
+
+}
 
         box.appendChild(card);
     });
